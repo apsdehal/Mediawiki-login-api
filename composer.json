@@ -1,6 +1,7 @@
 {
  "require": {
-    "torophp/torophp": "dev-master"
+    "torophp/torophp": "dev-master",
+    "addwiki/mediawiki-api-base": "dev-master"	
   },
   "autoload": {
     "classmap": [
