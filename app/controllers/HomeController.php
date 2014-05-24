@@ -43,15 +43,15 @@
 		   $this->client->setExtraParam('title','Special:OAuth/whatever') for each step.
 		   If your wiki uses wgSecureLogin, the canonicalServerUrl will point to http://
  		*/
- 		$this->$mwConfig = new MWOAuthClientConfig(
+ 		$this->mwConfig = new MWOAuthClientConfig(
 			$config['wiki_url'] . 'index.php?title=Special:OAuth', // url to use
 			true, // do we use SSL? (we should probably detect that from the url)
 			false // do we validate the SSL certificate? Always use 'true' in production.
 		);
 
-		$this->mwConfig->canonicalServerUrl = $config['canonical_server_url'];
+		$this->mwConfig->canonicalServerUrl = $config['canonical_server'];
 
-		$this->cmrToken = new OAuthToken( $config['consumer_key'], $config['secret_token'] );
+		$this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
 
 		$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
  	}

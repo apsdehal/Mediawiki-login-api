@@ -1,10 +1,8 @@
 <?php
 
-include_once './OAuth.php'; // reference php library from oauth.net
-
 function wfDebugLog( $method, $msg) {
 	// Uncomment this if you want debuggging info from the OAuth library
-	//echo "[$method] $msg\n";
+	// echo "[$method] $msg\n";
 }
 
 
@@ -76,6 +74,7 @@ class MWOAuthClient {
 		$initUrl = $this->config->endpointURL . '/initiate&format=json&oauth_callback=oob';
 		$data = $this->makeOAuthCall( null, $initUrl );
 		$return = json_decode( $data );
+		var_dump($return);
 		if ( $return->oauth_callback_confirmed !== 'true' ) {
 			throw new Exception( "Callback wasn't confirmed" );
 		}

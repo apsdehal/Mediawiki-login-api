@@ -4,7 +4,9 @@
   },
   "autoload": {
     "classmap": [
-    	"lib/OAuth"
+    	"lib/OAuth",
+    	"app/controllers",
+    	"app/models"
     ]
   }
 }

@@ -1,4 +1,7 @@
 {
  "consumer_token": "",
- "secret_token": ""
+ "secret_token": "",
+ "wiki_url": "https://mediawiki.org/wiki/",
+ "canonical_server":"",
+ "environment":"development"
 }
