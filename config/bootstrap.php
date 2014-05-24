@@ -1,7 +1,7 @@
 <?php
  require("vendor/autoload.php");
  
- $config = json_decode(file_get_contents("config/config.json", true);
+ global $config = json_decode(file_get_contents("config/config.json", true);
  
  if ($config["environment"] === "development") {
     error_reporting("-1");
