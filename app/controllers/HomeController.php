@@ -5,6 +5,7 @@
  	private $mwConfig, $cmrToken, $client;
 
  	public function get(){
+ 		global $config;
  		// Step 1 - Get a request token
 		list( $redir, $requestToken ) = $this->client->initiate();
 
@@ -30,34 +31,8 @@
 		echo "Getting user info: ";
 		echo $this->client->makeOAuthCall(
 			$accessToken,
-			'https://localhost/wiki/api.php?action=query&meta=userinfo&uiprop=rights&format=json'
+			$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
 		);
-
-		// Make an Edit
-		$editToken = json_decode( $this->client->makeOAuthCall(
-			$accessToken,
-			'https://localhost/wiki/api.php?action=tokens&format=json'
-		) )->tokens->edittoken;
-
-		$apiParams = array(
-			'action' => 'edit',
-			'title' => 'Talk:Main_Page',
-			'section' => 'new',
-			'summary' => 'Hello World',
-			'text' => 'Hi',
-			'token' => $editToken,
-			'format' => 'json',
-		);
-
-		$this->client->setExtraParams( $apiParams ); // sign these too
-
-		echo $this->client->makeOAuthCall(
-			$accessToken,
-			'https://localhost/wiki/api.php',
-			true,
-			$apiParams
-		);
-
  	}
 
  	public function __construct(){
@@ -69,7 +44,7 @@
 		   If your wiki uses wgSecureLogin, the canonicalServerUrl will point to http://
  		*/
  		$this->$mwConfig = new MWOAuthClientConfig(
-			$config['wiki_url'], // url to use
+			$config['wiki_url'] . 'index.php?title=Special:OAuth', // url to use
 			true, // do we use SSL? (we should probably detect that from the url)
 			false // do we validate the SSL certificate? Always use 'true' in production.
 		);
