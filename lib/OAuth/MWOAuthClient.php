@@ -74,7 +74,7 @@ class MWOAuthClient {
 		$initUrl = $this->config->endpointURL . '/initiate&format=json&oauth_callback=oob';
 		$data = $this->makeOAuthCall( null, $initUrl );
 		$return = json_decode( $data );
-		var_dump($return);
+		// var_dump($return);
 		if ( $return->oauth_callback_confirmed !== 'true' ) {
 			throw new Exception( "Callback wasn't confirmed" );
 		}

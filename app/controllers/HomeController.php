@@ -25,7 +25,7 @@
 		// Step 2 - Have the user authorize your app. Get a verifier code from them.
 		// (if this was a webapp, you would redirect your user to $redir, then use the 'oauth_verifier'
 		// GET parameter when the user is redirected back to the callback url you registered.
-		echo "Point your browser to: $redir\n\n";
+		header( "Location:" . $redir);
 		print "Enter the verification code:\n";
 		$fh = fopen( "php://stdin", "r" );
 		$verifyCode = trim( fgets( $fh ) );
