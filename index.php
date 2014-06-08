@@ -25,7 +25,34 @@ class HomeController
 		session_start();
 
  		// Step 1 - Get a request token
- 		if(!isset($_GET["oauth_verifier"])){
+ 		if(isset($_GET["oauth_verifier"]) && $_GET['oauth_verifier']){
+ 			$this->loadSession();
+			$verifyCode = $_GET['oauth_verifier'];
+			// $requestToken = $_GET['oauth_token'];
+			// Step 3 - Exchange the request token and verification code for an access token
+			$accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
+			$identity = $this->client->identify( $accessToken );
+			echo "Authenticated user {$identity->username}\n";
+
+			// Do a simple API call
+			echo "Getting user info: ";
+			echo $this->client->makeOAuthCall(
+				$accessToken,
+				$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
+			);
+			
+
+		} else {	
+ 
+			$this->loadSession();
+			if(!isset($_SESSION['cmrToken'])){
+				$this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
+
+				$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
+
+				$this->setupSession();
+			}
+
 			list( $redir, $requestToken ) = $this->client->initiate();
 			$_SESSION['requestToken'] = $requestToken;
 
@@ -34,24 +61,12 @@ class HomeController
 			// GET parameter when the user is redirected back to the callback url you registered.
 			header( "Location:" . $redir);
 		}
-		$verifyCode = $_GET['oauth_verifier'];
-		// $requestToken = $_GET['oauth_token'];
-		// Step 3 - Exchange the request token and verification code for an access token
-		$accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
+ 	
 
 		// You're done! You can now identify the user, and/or call the API (examples below) with $accessToken
 
 
 		// If we want to authenticate the user
-		$identity = $this->client->identify( $accessToken );
-		echo "Authenticated user {$identity->username}\n";
-
-		// Do a simple API call
-		echo "Getting user info: ";
-		echo $this->client->makeOAuthCall(
-			$accessToken,
-			$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
-		);
 		// var_dump($_GET);
  	}
 
@@ -74,22 +89,24 @@ class HomeController
 		);
 
 		$this->mwConfig->canonicalServerUrl = $config['canonical_server'];
-
-		$this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
-
-		$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
-
-		$this->setupSession();
- 	}
+	}
 
  	function setupSession() {
 		// Setup the session cookie
-		session_name( $this->tool );
-		$params = session_get_cookie_params();
-		session_set_cookie_params(
-			$params['lifetime'],
-			dirname( $_SERVER['SCRIPT_NAME'] )
-		);
+		session_start();
+		$_SESSION['cmrToken'] = $this->cmrToken;
+		$_SESSION['client'] = $this->client;
+		session_write_close();
+	}
+
+	function loadSession(){
+		session_start();
+		if(isset($_SESSION['cmrToken']))
+			$this->cmrToken = $_SESSION['cmrToken'];
+		if(isset($_SESSION['client']))
+			$this->cmrToken = $_SESSION['client'];
+		session_write_close();
+
 	}
  
  }
