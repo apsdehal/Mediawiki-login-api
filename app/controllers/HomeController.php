@@ -47,11 +47,9 @@
 		// 	$accessToken,
 		// 	$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
 		// );
-		var_dump($_SESSION);
-		die();
 		if(!isset($_SESSION['start'])){
-			$_SESSION['start'] = 1;
 		   $this->mwClient = new MW_OAuth('WikidataAnnotationTool', 'wikidata', 'en');
+   			$_SESSION['start'] = 1;
 			$this->mwClient->doAuthorizationRedirect();
 		} else {
 			$this->mwClient->fetchAccessToken();
