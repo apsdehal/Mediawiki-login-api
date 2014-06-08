@@ -76,5 +76,14 @@
 
 		$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
  	}
+ 	function setupSession() {
+		// Setup the session cookie
+		session_name( $this->tool );
+		$params = session_get_cookie_params();
+		session_set_cookie_params(
+			$params['lifetime'],
+			dirname( $_SERVER['SCRIPT_NAME'] )
+		);
+	}
  
  }

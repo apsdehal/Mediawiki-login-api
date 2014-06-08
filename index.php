@@ -78,7 +78,19 @@ class HomeController
 		$this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
 
 		$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
+
+		$this->setupSession();
  	}
+
+ 	function setupSession() {
+		// Setup the session cookie
+		session_name( $this->tool );
+		$params = session_get_cookie_params();
+		session_set_cookie_params(
+			$params['lifetime'],
+			dirname( $_SERVER['SCRIPT_NAME'] )
+		);
+	}
  
  }
 $home = new HomeController();
