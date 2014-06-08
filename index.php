@@ -37,7 +37,7 @@ class HomeController
 		$verifyCode = $_GET['oauth_verifier'];
 		// $requestToken = $_GET['oauth_token'];
 		// Step 3 - Exchange the request token and verification code for an access token
-		// $accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
+		$accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
 
 		// You're done! You can now identify the user, and/or call the API (examples below) with $accessToken
 
