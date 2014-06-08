@@ -19,7 +19,21 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
+ 		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'en', 'wikidata' );
 
+ 		switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ) {
+			case 'download':
+				header( 'Content-Type: text/plain' );
+				readfile( __FILE__ );
+				return;
+
+			case 'authorize':
+				$this->mwClient->doAuthorizationRedirect();
+				return;
+
+		}
+
+		echo "hello";
  	}
  
  }

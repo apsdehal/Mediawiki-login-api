@@ -117,6 +117,7 @@ class MW_OAuth {
 		session_start();
 		$_SESSION['tokenKey'] = $this->gTokenKey = $token->key;
 		$_SESSION['tokenSecret'] = $this->gTokenSecret = $token->secret;
+		$_SESSION['authDone'] = true;
 		if ( $this->use_cookies ) {
 			$t = time()+60*60*24*30 ; // expires in one month
 			setcookie ( 'tokenKey' , $_SESSION['tokenKey'] , $t , '/'+$this->tool+'/' ) ;
