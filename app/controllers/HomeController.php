@@ -9,7 +9,8 @@
  	 * @var $client Instance of MWOAuthClass that is generated after passing both above vars into it
  	 * 				Used to interact with Wikimedia's OAuth API 	
  	 */	
- 	private $mwConfig, $cmrToken, $client;
+ 	// private $mwConfig, $cmrToken, $client;
+ 	private $mwClient;
 
  	/**
  	 * Function to handle the get request made to the server where this app reside
@@ -36,12 +37,12 @@
 		// Step 3 - Exchange the request token and verification code for an access token
 		$accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
 
-		// You're done! You can now identify the user, and/or call the API (examples below) with $accessToken
+		// // You're done! You can now identify the user, and/or call the API (examples below) with $accessToken
 
 
-		// If we want to authenticate the user
-		$identity = $this->client->identify( $accessToken );
-		echo "Authenticated user {$identity->username}\n";
+		// // If we want to authenticate the user
+		// $identity = $this->client->identify( $accessToken );
+		// echo "Authenticated user {$identity->username}\n";
 
 		// Do a simple API call
 		echo "Getting user info: ";
@@ -57,24 +58,25 @@
  	 * and the original OAuth Client, so basically constructes the class.
  	 */	
  	public function __construct(){
- 		global $config;
+ 	
+ 	// private $mwClient;	global $config;
  		/* 
  		   Configure the connection to the wiki you want to use. Passing title=Special:OAuth as a
 		   GET parameter makes the signature easier. Otherwise you need to call
 		   $this->client->setExtraParam('title','Special:OAuth/whatever') for each step.
 		   If your wiki uses wgSecureLogin, the canonicalServerUrl will point to http://
- 		*/
- 		$this->mwConfig = new MWOAuthClientConfig(
-			$config['wiki_url'] . 'index.php?title=Special:OAuth', // url to use
-			true, // do we use SSL? (we should probably detect that from the url)
-			false // do we validate the SSL certificate? Always use 'true' in production.
-		);
+ 	// 	*/
+ 	// 	$this->mwConfig = new MWOAuthClientConfig(
+		// 	$config['wiki_url'] . 'index.php?title=Special:OAuth', // url to use
+		// 	true, // do we use SSL? (we should probably detect that from the url)
+		// 	false // do we validate the SSL certificate? Always use 'true' in production.
+		// );
 
-		$this->mwConfig->canonicalServerUrl = $config['canonical_server'];
+		// $this->mwConfig->canonicalServerUrl = $config['canonical_server'];
 
-		$this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
+		// $this->cmrToken = new OAuthToken( $config['consumer_token'], $config['secret_token'] );
 
-		$this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
+		// $this->client = new MWOAuthClient( $this->mwConfig, $this->cmrToken );
  	}
  	function setupSession() {
 		// Setup the session cookie
