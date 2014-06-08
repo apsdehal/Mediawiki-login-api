@@ -45,8 +45,8 @@ class MW_OAuth {
 	
 	function loadConfig () {
 		$this->gUserAgent = $this->config['agent'];
-		$this->gConsumerKey = $this->params['consumer_token'];
-		$this->gConsumerSecret = $this->params['secret_token'];
+		$this->gConsumerKey = $this->config['consumer_token'];
+		$this->gConsumerSecret = $this->config['secret_token'];
 	}
 	
 	// Load the user token (request or access) from the session

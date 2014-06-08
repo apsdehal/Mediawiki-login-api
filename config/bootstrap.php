@@ -1,7 +1,6 @@
 <?php
  //Load the autoload class provided by the composer
  require("vendor/autoload.php");
- require("lib/OAuth/MWOAuthMagnus.php");
 
  //Get the config and json decode it to get an array with the required config
  $config  = json_decode(file_get_contents("config/config.json"), true);
@@ -11,4 +10,5 @@
 	    error_reporting("-1");
 	    ini_set("display_errors", "On");
 	 }
+ require("lib/OAuth/MWOAuthMagnus.php");
 

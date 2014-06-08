@@ -3,7 +3,7 @@
 	require("config/bootstrap.php");
 
 	$routes = array(
-		'/' => 'HomeController'
+		'/wikidata-annotation-tool' => 'HomeController'
 	);
 
 	Toro::serve($routes);
