@@ -47,21 +47,23 @@
 		// 	$accessToken,
 		// 	$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
 		// );
-		if(!isset($_SESSION['start'])){
-		   $this->mwClient = new MW_OAuth('WikidataAnnotationTool', 'wikidata', 'en');
-   			$_SESSION['start'] = 1;
-			$this->mwClient->doAuthorizationRedirect();
-		} else {
-			$this->mwClient->fetchAccessToken();
-				$claim = array (
-					"prop" => 'P31' ,
-					"q" => 'Q4115189' ,
-					"target" => 'Q12345' ,
-					"type" => "item"
-				) ;
-				$this->mwClient->doesClaimExist($claim);
+		// if(!isset($_SESSION['start'])){
+		//    $this->mwClient = new MW_OAuth('WikidataAnnotationTool', 'wikidata', 'en');
+  //  			$_SESSION['start'] = 1;
+		// 	$this->mwClient->doAuthorizationRedirect();
+		// } else {
+		// 	$this->mwClient->fetchAccessToken();
+		// 		$claim = array (
+		// 			"prop" => 'P31' ,
+		// 			"q" => 'Q4115189' ,
+		// 			"target" => 'Q12345' ,
+		// 			"type" => "item"
+		// 		) ;
+		// 		$this->mwClient->doesClaimExist($claim);
 
-		}
+		// }
+		echo 'Hello';
+		die();
  	}
 
  	/**
