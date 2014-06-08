@@ -104,7 +104,7 @@ class HomeController
 		if(isset($_SESSION['cmrToken']))
 			$this->cmrToken = $_SESSION['cmrToken'];
 		if(isset($_SESSION['client']))
-			$this->cmrToken = $_SESSION['client'];
+			$this->client = $_SESSION['client'];
 		session_write_close();
 
 	}
