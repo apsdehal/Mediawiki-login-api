@@ -19,19 +19,22 @@
  	 */	
  	public function get(){
  		global $config;
+		session_start();
+
  		// Step 1 - Get a request token
-		list( $redir, $requestToken ) = $this->client->initiate();
+ 		if(!isset($_GET["oauth_verifier"])){
+			list( $redir, $requestToken ) = $this->client->initiate();
+			$_SESSION['requestToken'] = $requestToken;
 
-		// Step 2 - Have the user authorize your app. Get a verifier code from them.
-		// (if this was a webapp, you would redirect your user to $redir, then use the 'oauth_verifier'
-		// GET parameter when the user is redirected back to the callback url you registered.
-		header( "Location:" . $redir);
-		print "Enter the verification code:\n";
-		$fh = fopen( "php://stdin", "r" );
-		$verifyCode = trim( fgets( $fh ) );
-
+			// Step 2 - Have the user authorize your app. Get a verifier code from them.
+			// (if this was a webapp, you would redirect your user to $redir, then use the 'oauth_verifier'
+			// GET parameter when the user is redirected back to the callback url you registered.
+			header( "Location:" . $redir);
+		}
+		$verifyCode = $_GET['oauth_verifier'];
+		// $requestToken = $_GET['oauth_token'];
 		// Step 3 - Exchange the request token and verification code for an access token
-		$accessToken = $this->client->complete( $requestToken,  $verifyCode );
+		$accessToken = $this->client->complete( $_SESSION['requestToken'],  $verifyCode );
 
 		// You're done! You can now identify the user, and/or call the API (examples below) with $accessToken
 
@@ -46,6 +49,7 @@
 			$accessToken,
 			$config['wiki_url'] . 'api.php?action=query&meta=userinfo&uiprop=rights&format=json'
 		);
+		// var_dump($_GET);
  	}
 
  	/**
