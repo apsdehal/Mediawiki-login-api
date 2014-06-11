@@ -2,7 +2,7 @@
 
 class User
 {	
-	private var $info;
+	private $info;
 
 	function __construct( $params ) {
 		$this->info = $params;
@@ -15,7 +15,7 @@ class User
 
 	function getInfo(){
 		if( isset( $_COOKIE['mxdf'] ) && $_COOKIE['mxdf'] ){
-			return json_encode($_COOKIE['mxdf'];
+			return json_encode($_COOKIE['mxdf']);
 		} else {
 			return false;
 		}

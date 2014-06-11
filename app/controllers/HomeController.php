@@ -19,6 +19,7 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
+
  		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'www' );
  		$this->getUserInfo();
 
@@ -31,12 +32,10 @@
 			case 'authorize':
 				$this->mwClient->doAuthorizationRedirect();
 				return;
-			case: 'getCurrentInfo':
-				$this->getCurrentInfo();
-			case: 'logout':
+			case 'getcurrentinfo':
+				$this->getUserInfo();
+			case 'logout':
 				$this->logout();		
-			case 'userinfo':
-				$this->getUserInfo();	
 
 		}
 
@@ -56,22 +55,36 @@
  				'uiprop' => 'email|editcount|realname',
  				'format' =>'json'
  				);
- 			$name = $queryResults->query->userinfo->name;
  			$queryResults = $this->mwClient->doApiQuery($postData);
- 			$info = array(
- 				"loginStatus" => 1,
- 				"id" => $queryResults->query->userinfo->id,
- 				"fullName" => $name,
- 				"firstName" => $name,
- 				"lastName" => "",
- 				"email" => "",
- 				"uri" => "https://www.mediawiki.org/wiki/User:" . $name,
- 				"openid" => "",
- 				"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize",
- 				)
+
+ 			$name = $queryResults->query->userinfo->name;
+
+ 			if( $queryResults->query->userinfo->id == "0" ){
+ 				$info = array(
+ 					"loginStatus" => 0,
+ 					"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize"
+ 					);
+ 			} else {
+
+	 			$info = array(
+	 				"loginStatus" => 1,
+	 				"id" => $queryResults->query->userinfo->id,
+	 				"fullName" => $name,
+	 				"firstName" => $name,
+	 				"lastName" => "",
+	 				"email" => "",
+	 				"uri" => "https://www.mediawiki.org/wiki/User:" . $name,
+	 				"openid" => "",
+	 				"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize",
+	 				);
+	 		}
  			$user = new User($info);
  			echo $user->getInfo();
  		}
+ 	}
+
+ 	function logout(){
+
  	}
  
  }
