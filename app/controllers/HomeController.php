@@ -56,7 +56,21 @@
  				'uiprop' => 'email|editcount|realname',
  				'format' =>'json'
  				);
+ 			$name = $queryResults->query->userinfo->name;
  			$queryResults = $this->mwClient->doApiQuery($postData);
+ 			$info = array(
+ 				"loginStatus" => 1,
+ 				"id" => $queryResults->query->userinfo->id,
+ 				"fullName" => $name,
+ 				"firstName" => $name,
+ 				"lastName" => "",
+ 				"email" => "",
+ 				"uri" => "https://www.mediawiki.org/wiki/User:" . $name,
+ 				"openid" => "",
+ 				"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize",
+ 				)
+ 			$user = new User($info);
+ 			echo $user->getInfo();
  		}
  	}
  
