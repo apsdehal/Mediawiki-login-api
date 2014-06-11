@@ -18,7 +18,7 @@ class MW_OAuth {
 		$this->project = $p ;
 		// $this->ini_file = "/data/project/$t/oauth.ini" ;
 		
-		if ( $l == 'wikidata' ) $this->apiUrl = 'https://www.wikidata.org/w/api.php' ;
+		if ( $l == 'wikidata' ) $this->apiUrl = 'http://www.wikidata.org/w/api.php' ;
 		else if ( $l == 'commons' ) $this->apiUrl = 'https://commons.wikimedia.org/w/api.php' ;
 		else $this->apiUrl = "https://$l.$p.org/w/api.php" ;
 
