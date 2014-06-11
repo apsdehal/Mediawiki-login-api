@@ -18,7 +18,7 @@ class MW_OAuth {
 		$this->project = $p ;
 		// $this->ini_file = "/data/project/$t/oauth.ini" ;
 		
-		if ( $l == 'wikidata' ) $this->apiUrl = 'http://www.wikidata.org/w/api.php' ;
+		if ( $l == 'wikidata' ) $this->apiUrl = 'https://www.wikidata.org/w/api.php' ;
 		else if ( $l == 'commons' ) $this->apiUrl = 'https://commons.wikimedia.org/w/api.php' ;
 		else $this->apiUrl = "https://$l.$p.org/w/api.php" ;
 
@@ -120,6 +120,7 @@ class MW_OAuth {
 		$_SESSION['authDone'] = true;
 		if ( $this->use_cookies ) {
 			$t = time()+60*60*24*30 ; // expires in one month
+			setcookie( 'authDone', true, $t, '/'+$this->tool+'/');
 			setcookie ( 'tokenKey' , $_SESSION['tokenKey'] , $t , '/'+$this->tool+'/' ) ;
 			setcookie ( 'tokenSecret' , $_SESSION['tokenSecret'] , $t , '/'+$this->tool+'/' ) ;
 		}

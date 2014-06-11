@@ -19,7 +19,8 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
- 		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'wikidata' );
+ 		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'www' );
+ 		$this->getUserInfo();
 
  		switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ) {
 			case 'download':
@@ -30,6 +31,10 @@
 			case 'authorize':
 				$this->mwClient->doAuthorizationRedirect();
 				return;
+			case: 'getCurrentInfo':
+				$this->getCurrentInfo();
+			case: 'logout':
+				$this->logout();		
 			case 'userinfo':
 				$this->getUserInfo();	
 
@@ -39,17 +44,19 @@
  	}
 
  	public function getUserInfo(){
+
+ 		if(isset($_COOKIE['authDone']) && $_COOKIE['authDone'] == true){
+ 			$_SESSION['authDone'] = true;
+ 		}
+
  		if( isset($_SESSION['authDone']) && $_SESSION['authDone'] == true ){
  			$postData = array(
  				'action' => 'query',
  				'meta' => 'userinfo',
- 				'uiprop' => 'rights',
+ 				'uiprop' => 'email|editcount|realname',
  				'format' =>'json'
  				);
  			$queryResults = $this->mwClient->doApiQuery($postData);
- 			echo '<pre>';
- 			print_r($queryResults);
- 			echo $queryResults->query->userinfo->name;
  		}
  	}
  
