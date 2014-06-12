@@ -11,6 +11,8 @@
  	 */	
  	// private $mwConfig, $cmrToken, $client;
  	private $mwClient;
+ 	private $tool;
+
 
  	/**
  	 * Function to handle the get request made to the server where this app reside
@@ -21,7 +23,6 @@
  	public function get(){
 
  		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'www' );
- 		$this->getUserInfo();
 
  		switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ) {
 			case 'download':
@@ -35,11 +36,11 @@
 			case 'getcurrentinfo':
 				$this->getUserInfo();
 			case 'logout':
-				$this->logout();		
-
+				$this->logout();
+			default:
+				// echo "hello";
 		}
 
-		echo "hello";
  	}
 
  	public function getUserInfo(){
@@ -78,13 +79,18 @@
 	 				"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize",
 	 				);
 	 		}
- 			$user = new User($info);
+	 		// var_dump($info);
+ 			$user = new User($info, $this->tool);
  			echo $user->getInfo();
  		}
  	}
 
  	function logout(){
 
+ 	}
+
+ 	public function __construct(){
+ 		$this->tool = 'wikidata-annotation-tool';
  	}
  
  }

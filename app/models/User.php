@@ -3,9 +3,12 @@
 class User
 {	
 	private $info;
+	private $tool;
 
-	function __construct( $params ) {
-		$this->info = $params;
+	function __construct( $params, $toolName ) {
+		$this->info = json_encode($params);
+		$this->tool = $toolName;
+		$this->setInfo();
 	}
 
 	function setInfo() {
@@ -15,7 +18,8 @@ class User
 
 	function getInfo(){
 		if( isset( $_COOKIE['mxdf'] ) && $_COOKIE['mxdf'] ){
-			return json_encode($_COOKIE['mxdf']);
+			// var_dump($);
+			return $_COOKIE['mxdf'];
 		} else {
 			return false;
 		}
