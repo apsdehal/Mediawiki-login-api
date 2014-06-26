@@ -24,4 +24,10 @@ class User
 			return false;
 		}
  	}
+
+ 	function pushAnnotations(){
+ 		if( isset($_COOKIE['mxdf']) && $_COOKIE['mxdf'] ){
+ 			$info = json_decode($_COOKIE['mxdf']);
+ 		}
+ 	}
 }

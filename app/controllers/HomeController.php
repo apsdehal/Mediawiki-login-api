@@ -37,6 +37,8 @@
 				$this->getUserInfo();
 			case 'logout':
 				$this->logout();
+			case 'push':
+				$this->pushAnnotations();	
 			default:
 				// echo "hello";
 		}
@@ -57,32 +59,33 @@
  				'format' =>'json'
  				);
  			$queryResults = $this->mwClient->doApiQuery($postData);
-
  			$name = $queryResults->query->userinfo->name;
+
 
  			if( $queryResults->query->userinfo->id == "0" ){
  				$info = array(
  					"loginStatus" => 0,
- 					"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize"
  					);
  			} else {
 
 	 			$info = array(
 	 				"loginStatus" => 1,
 	 				"id" => $queryResults->query->userinfo->id,
-	 				"fullName" => $name,
-	 				"firstName" => $name,
-	 				"lastName" => "",
-	 				"email" => "",
-	 				"uri" => "https://www.mediawiki.org/wiki/User:" . $name,
-	 				"openid" => "",
-	 				"loginServer" => "http://tools.wmflabs.org/wikidata-annotation-tool?action=authorize",
+	 				"username" => $name
 	 				);
 	 		}
-	 		// var_dump($info);
- 			$user = new User($info, $this->tool);
- 			echo $user->getInfo();
+ 		} else {
+			$info = array(
+				"loginStatus" => 0,
+			);
  		}
+		$user = new User($info, $this->tool);
+		header('Content-type: application/json');
+		header('Access-Control-Allow-Origin: wikitool.local'); 
+		header('Access-Control-Allow-Credentials:true');
+		header('Access-Control-Allow-Headers:Content-Type, X-Requested-With, Accept');
+		header('Access-Control-Allow-Methods:HEAD, GET, POST, PUT, DELETE, OPTIONS');
+		echo $user->getInfo();
  	}
 
  	function logout(){
