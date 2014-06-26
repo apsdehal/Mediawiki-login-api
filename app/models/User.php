@@ -18,7 +18,6 @@ class User
 
 	function getInfo(){
 		if( isset( $_COOKIE['mxdf'] ) && $_COOKIE['mxdf'] ){
-			// var_dump($);
 			return $_COOKIE['mxdf'];
 		} else {
 			return false;
@@ -26,8 +25,8 @@ class User
  	}
 
  	function pushAnnotations(){
- 		if( isset($_COOKIE['mxdf']) && $_COOKIE['mxdf'] ){
- 			$info = json_decode($_COOKIE['mxdf']);
+ 		if(isset($_POST['ann']) && $_POST['ann']){
+ 			$ann = json_decode($_POST['ann']);
  		}
  	}
 }

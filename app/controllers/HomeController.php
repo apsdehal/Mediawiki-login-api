@@ -39,8 +39,6 @@
 				$this->logout();
 			case 'push':
 				$this->pushAnnotations();	
-			default:
-				// echo "hello";
 		}
 
  	}
@@ -92,6 +90,13 @@
 
  	}
 
+ 	function pushAnnotations(){
+		if( isset($_COOKIE['mxdf']) && $_COOKIE['mxdf'] ){
+ 			$info = json_decode($_COOKIE['mxdf']);
+	 		$user = new User($info, $this->tool);
+	 		$user->pushAnnotations();
+	 	}
+ 	}
  	public function __construct(){
  		$this->tool = 'wikidata-annotation-tool';
  	}
