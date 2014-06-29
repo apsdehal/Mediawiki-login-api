@@ -35,12 +35,20 @@
 			case 'authorize':
 				$this->mwClient->doAuthorizationRedirect();
 				return;
-			case 'logout':
-				$this->logout();
-			case 'push':
-				$this->pushAnnotations();	
+			case 'check_claim':
+				$params = $this->analyzeGetRequests();
+				echo json_encode($this->mwClient->doesClaimExist($params));
+			case 'checkOAuth':
+				echo json_encode($this-<mwClient->isAuthOk())		
 		}
 
+ 	}
+
+ 	public function analyzeGetRequests(){
+ 		if(isset($_GET['action'])){
+ 			unset($_GET['action']);
+ 		}
+ 		return $_GET;
  	}
  
  }
