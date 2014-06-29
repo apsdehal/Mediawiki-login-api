@@ -9,11 +9,13 @@
  	 * @var $client Instance of MWOAuthClass that is generated after passing both above vars into it
  	 * 				Used to interact with Wikimedia's OAuth API 	
  	 */	
- 	// private $mwConfig, $cmrToken, $client;
  	private $mwClient;
  	private $tool;
 
-
+  	public function __construct(){
+ 		$this->tool = 'wikidata-annotation-tool';
+ 	}
+	
  	/**
  	 * Function to handle the get request made to the server where this app reside
  	 * Since the App is built in a RESTful manner thats why this function is here
@@ -33,72 +35,12 @@
 			case 'authorize':
 				$this->mwClient->doAuthorizationRedirect();
 				return;
-			case 'getcurrentinfo':
-				$this->getUserInfo();
 			case 'logout':
 				$this->logout();
 			case 'push':
 				$this->pushAnnotations();	
 		}
 
- 	}
-
- 	public function getUserInfo(){
-
- 		if(isset($_COOKIE['authDone']) && $_COOKIE['authDone'] == true){
- 			$_SESSION['authDone'] = true;
- 		}
-
- 		if( isset($_SESSION['authDone']) && $_SESSION['authDone'] == true ){
- 			$postData = array(
- 				'action' => 'query',
- 				'meta' => 'userinfo',
- 				'uiprop' => 'email|editcount|realname',
- 				'format' =>'json'
- 				);
- 			$queryResults = $this->mwClient->doApiQuery($postData);
- 			$name = $queryResults->query->userinfo->name;
-
-
- 			if( $queryResults->query->userinfo->id == "0" ){
- 				$info = array(
- 					"loginStatus" => 0,
- 					);
- 			} else {
-
-	 			$info = array(
-	 				"loginStatus" => 1,
-	 				"id" => $queryResults->query->userinfo->id,
-	 				"username" => $name
-	 				);
-	 		}
- 		} else {
-			$info = array(
-				"loginStatus" => 0,
-			);
- 		}
-		$user = new User($info, $this->tool);
-		header('Content-type: application/json');
-		header('Access-Control-Allow-Origin: wikitool.local'); 
-		header('Access-Control-Allow-Credentials:true');
-		header('Access-Control-Allow-Headers:Content-Type, X-Requested-With, Accept');
-		header('Access-Control-Allow-Methods:HEAD, GET, POST, PUT, DELETE, OPTIONS');
-		echo $user->getInfo();
- 	}
-
- 	function logout(){
-
- 	}
-
- 	function pushAnnotations(){
-		if( isset($_COOKIE['mxdf']) && $_COOKIE['mxdf'] ){
- 			$info = json_decode($_COOKIE['mxdf']);
-	 		$user = new User($info, $this->tool);
-	 		$user->pushAnnotations();
-	 	}
- 	}
- 	public function __construct(){
- 		$this->tool = 'wikidata-annotation-tool';
  	}
  
  }
