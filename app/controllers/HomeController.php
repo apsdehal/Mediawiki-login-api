@@ -38,10 +38,12 @@
 			case 'check_claim':
 				$params = $this->analyzeGetRequests();
 				echo json_encode($this->mwClient->doesClaimExist($params));
-			case 'checkOAuth':
-				echo json_encode($this-<mwClient->isAuthOk())		
+			case 'check_oauth':
+				echo json_encode($this->mwClient->isAuthOk());
+			case 'set_label':
+				$params = $this->analyzeGetRequests();
+				echo json_encode($this->mwClient->setLabel($param));			
 		}
-
  	}
 
  	public function analyzeGetRequests(){
