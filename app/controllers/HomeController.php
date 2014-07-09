@@ -27,7 +27,7 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
- 		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'www' );
+ 		$this->mwClient = new MW_OAuth ( 'wikidata-annotation-tool' , 'wikidata' , 'wikidata' ) ;
 
  		$this->checkRedirect();
 
@@ -41,84 +41,84 @@
 			
 			case 'remove_claim' :
 				$this->removeClaim() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_claims':
 				$this->setClaims() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'merge_items':
 				$this->mergeItems() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_label':
 				$this->setLabel() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_string':
 				$this->setString() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'get_rights':
 				$this->getRights() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'logout':
 				$this->logout() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 			
 			case 'set_date':
 				$this->setDateClaim() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'create_item_from_page':
 				$this->createItemFromPage() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'delete':
 				$this->deletePage() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'add_row': // Adds a text row to a non-item page
 				$this->addRow() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 				
 			case 'append' :
 				$this->appendText() ;
-				if ( $this->botmode ) bot_out() ;
+				if ( $this->botmode ) $this->bot_out() ;
 				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
@@ -127,7 +127,7 @@
 		$this->show_header() ;
 
 		if ( $this->botmode ) {
-			$this->bot_out() ;
+			$this->$this->bot_out() ;
 		} else {
 			$this->printDefault();
 		}
@@ -281,18 +281,18 @@
 		if ( !$this->botmode ) {
 			print "<div>Processing claim removal...</div>" ;
 			print "<ol>" ;
-			myflush();
+			$this->myflush();
 		}
 
 		if ( !$this->botmode ) {
 			print "<li>Removing $id ... " ;
-			myflush() ;
+			$this->myflush() ;
 		}
 		
 		if ( $this->miser_mode ) {
 			if ( !$this->botmode ) {
 				print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
-				myflush() ;
+				$this->myflush() ;
 			}
 			sleep ( 5 ) ;
 		}
@@ -311,7 +311,7 @@
 		}
 		if ( !$this->botmode )  {
 			print "</li>" ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		if ( !$this->botmode ) print "</ol>" ;
@@ -339,13 +339,13 @@
 		if ( !$this->botmode ) {
 			print "<div>Processing merging...</div>" ;
 			print "<ol>" ;
-			myflush();
+			$this->myflush();
 		}
 		
 		if ( $this->miser_mode ) {
 			if ( !$this->botmode ) {
 				print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
-				myflush() ;
+				$this->myflush() ;
 			}
 			sleep ( 5 ) ;
 		}
@@ -364,7 +364,7 @@
 		}
 		if ( !$this->botmode )  {
 			print "</li>" ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		if ( !$this->botmode ) print "</ol>" ;
@@ -393,7 +393,7 @@
 		if ( !$this->botmode ) {
 			print "<div>Batch-processing " . count($ids) . " items...</div>" ;
 			print "<ol>" ;
-			myflush();
+			$this->myflush();
 		}
 
 		foreach ( $ids AS $id ) {
@@ -401,13 +401,13 @@
 			if ( $id == '' && $qualifier_claim == '' ) continue ;
 			if ( !$this->botmode ) {
 				print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $target ... " ;
-				myflush() ;
+				$this->myflush() ;
 			}
 			
 			if ( $this->miser_mode ) {
 				if ( !$this->botmode ) {
 					print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
-					myflush() ;
+					$this->myflush() ;
 				}
 				sleep ( 5 ) ;
 			}
@@ -432,7 +432,7 @@
 			}
 			if ( !$this->botmode )  {
 				print "</li>" ;
-				myflush() ;
+				$this->myflush() ;
 			}
 			
 		}
@@ -463,12 +463,12 @@
 		if ( !$this->botmode ) {
 			print "<div>Processing items $id...</div>" ;
 			print "<ol>" ;
-			myflush();
+			$this->myflush();
 		}
 
 		if ( !$this->botmode ) {
 			print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $text ... " ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		$claim = array (
@@ -491,7 +491,7 @@
 		}
 		if ( !$this->botmode )  {
 			print "</li>" ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		if ( !$this->botmode ) print "</ol>" ;
@@ -513,6 +513,7 @@
 		
 		if ( $id == '' or $prop == '' or $date == '' or $prec == '' ) {
 			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
 			else print "<pre>$msg</pre>" ;
 			return ;
 		}
@@ -520,12 +521,12 @@
 		if ( !$this->botmode ) {
 			print "<div>Processing items $id...</div>" ;
 			print "<ol>" ;
-			myflush();
+			$this->myflush();
 		}
 
 		if ( !$this->botmode ) {
 			print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $text ... " ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		$claim = array (
@@ -542,11 +543,13 @@
 			if ( !$this->botmode ) print "done.\n" ;
 		} else {
 			$msg = "failed!" ;
+			$this->out['error2'] = $this->mwClient->error ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
 			else print "$msg\n" ;
 		}
 		if ( !$this->botmode )  {
 			print "</li>" ;
-			myflush() ;
+			$this->myflush() ;
 		}
 
 		if ( !$this->botmode ) print "</ol>" ;
@@ -616,7 +619,7 @@
 		$this->show_header() ;
 		
 		$res = $this->mwClient->getConsumerRights() ;
-		
+		// echo 'Hello';
 		if ( $this->botmode ) {
 			$this->out['result'] = $res ;
 		} else {

@@ -1,5 +1,4 @@
 <?php
-
 global $botmode;
 $botmode = isset ( $_REQUEST['botmode'] ) ;
 

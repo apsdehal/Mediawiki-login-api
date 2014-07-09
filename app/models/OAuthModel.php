@@ -4,25 +4,23 @@ class MW_OAuth {
 
 	var $use_cookies = true ;
 	var $tool ;
-	var $debugging = true ;
+	var $debugging = false ;
 	var $language , $project ;
 	var $ini_file , $params ;
 	var $mwOAuthUrl = 'https://www.mediawiki.org/w/index.php?title=Special:OAuth';
 	var $mwOAuthIW = 'mw'; // Set this to the interwiki prefix for the OAuth central wiki.
-	var $config = array();
 	
 	function MW_OAuth ( $t , $l , $p ) {
-		global $config;
 		$this->tool = $t ;
 		$this->language = $l ;
 		$this->project = $p ;
-		// $this->ini_file = "/data/project/$t/oauth.ini" ;
 		
 		if ( $l == 'wikidata' ) $this->apiUrl = 'https://www.wikidata.org/w/api.php' ;
 		else if ( $l == 'commons' ) $this->apiUrl = 'https://commons.wikimedia.org/w/api.php' ;
 		else $this->apiUrl = "https://$l.$p.org/w/api.php" ;
 
-		$this->config = $config;
+		global $config;
+		$this->config = $config; 
 		$this->loadConfig() ;
 		$this->setupSession() ;
 		$this->loadToken() ;
@@ -31,6 +29,16 @@ class MW_OAuth {
 			$this->fetchAccessToken();
 		}
 
+	}
+	
+	function logout () {
+		$this->setupSession() ;
+		session_start();
+		setcookie ( 'tokenKey' , '' , 1 , '/'+$this->tool+'/' ) ;
+		setcookie ( 'tokenSecret' , '' , 1 , '/'+$this->tool+'/' ) ;
+		$_SESSION['tokenKey'] = '' ;
+		$_SESSION['tokenSecret'] = '' ;
+		session_write_close();
 	}
 	
 	function setupSession() {
@@ -48,6 +56,7 @@ class MW_OAuth {
 		$this->gConsumerKey = $this->config['consumer_token'];
 		$this->gConsumerSecret = $this->config['secret_token'];
 	}
+
 	
 	// Load the user token (request or access) from the session
 	function loadToken() {
@@ -117,10 +126,8 @@ class MW_OAuth {
 		session_start();
 		$_SESSION['tokenKey'] = $this->gTokenKey = $token->key;
 		$_SESSION['tokenSecret'] = $this->gTokenSecret = $token->secret;
-		$_SESSION['authDone'] = true;
 		if ( $this->use_cookies ) {
 			$t = time()+60*60*24*30 ; // expires in one month
-			setcookie( 'authDone', true, $t, '/'+$this->tool+'/');
 			setcookie ( 'tokenKey' , $_SESSION['tokenKey'] , $t , '/'+$this->tool+'/' ) ;
 			setcookie ( 'tokenSecret' , $_SESSION['tokenSecret'] , $t , '/'+$this->tool+'/' ) ;
 		}
@@ -138,7 +145,7 @@ class MW_OAuth {
 	 * @param string $url URL string
 	 * @param array $params Extra parameters for the Authorization header or post 
 	 * 	data (if application/x-www-form-urlencoded).
-	 *Ã‚ @return string Signature
+	 *Â @return string Signature
 	 */
 	function sign_request( $method, $url, $params = array() ) {
 //		global $gConsumerSecret, $gTokenSecret;
@@ -386,6 +393,12 @@ Claims are used like this:
 				if ( !isset($v->mainsnak->datavalue->value) ) continue ;
 				if ( $v->mainsnak->datavalue->value->$nid != str_replace('Q','',$claim['target'].'') ) continue ;
 				$does_exist = true ;
+			} else if ( $claim['type'] == 'string' ) {
+				if ( !isset($v->mainsnak) ) continue ;
+				if ( !isset($v->mainsnak->datavalue) ) continue ;
+				if ( !isset($v->mainsnak->datavalue->value) ) continue ;
+				if ( $v->mainsnak->datavalue->value != $claim['text'] ) continue ;
+				$does_exist = true ;
 			}
 		}
 	
@@ -432,6 +445,7 @@ Claims are used like this:
 			'language' => $language ,
 			'value' => $text ,
 			'token' => $token,
+			'bot' => 1
 		), $ch );
 		
 		if ( isset ( $res->error ) ) {
@@ -477,6 +491,46 @@ Claims are used like this:
 		return true ;
 	}
 	
+	function addPageText ( $page , $text , $header , $summary , $section ) {
+
+		// Fetch the edit token
+		$ch = null;
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'tokens',
+			'type' => 'edit',
+		), $ch );
+		if ( !isset( $res->tokens->edittoken ) ) {
+			header( "HTTP/1.1 500 Internal Server Error" );
+			echo 'Bad API response[setPageText]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			return false ;
+		}
+		$token = $res->tokens->edittoken;
+		
+		$p = array(
+			'format' => 'json',
+			'action' => 'edit',
+			'title' => $page,
+			'appendtext' => $text ,
+			'sectiontitle' => $header ,
+			'minor' => '' ,
+			'token' => $token,
+		) ;
+		
+		if ( isset ( $section ) and $section != '' ) $p['section'] = $section ;
+		if ( $summary != '' ) $p['summary'] = $summary ;
+		
+		// Now do that!
+		$res = $this->doApiQuery( $p , $ch );
+		
+		if ( isset ( $res->error ) ) {
+			$this->error = $res->error->info ;
+			return false ;
+		}
+
+		return true ;
+	}
+	
 	function createItemFromPage ( $site , $page ) {
 		$page = str_replace ( ' ' , '_' , $page ) ;
 	
@@ -489,7 +543,7 @@ Claims are used like this:
 		), $ch );
 		if ( !isset( $res->tokens->edittoken ) ) {
 			header( "HTTP/1.1 500 Internal Server Error" );
-			echo 'Bad API response[setClaim]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			echo 'Bad API response[createItemFromPage]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
 			return false ;
 		}
 		$token = $res->tokens->edittoken;
@@ -511,6 +565,7 @@ Claims are used like this:
 			'new' => 'item' ,
 			'data' => json_encode ( $data ) ,
 			'token' => $token,
+			'bot' => 1
 		), $ch );
 		
 		if ( isset ( $_REQUEST['test'] ) ) {
@@ -523,9 +578,46 @@ Claims are used like this:
 		return true ;
 	}
 
+	function removeClaim ( $id , $baserev ) {
+		// Fetch the edit token
+		$ch = null;
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'tokens',
+			'type' => 'edit',
+		), $ch );
+		if ( !isset( $res->tokens->edittoken ) ) {
+			header( "HTTP/1.1 500 Internal Server Error" );
+			echo 'Bad API response[setClaim]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			return false ;
+		}
+		$token = $res->tokens->edittoken;
+	
+	
+	
+		// Now do that!
+		$params = array(
+			'format' => 'json',
+			'action' => 'wbremoveclaims',
+			'claim' => $id ,
+			'token' => $token,
+			'bot' => 1
+		) ;
+		if ( isset ( $baserev ) and $baserev != '' ) $params['baserevid'] = $baserev ;
+		$res = $this->doApiQuery( $params , $ch );
+		
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+			print "<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+		
+		return true ;
+	}
 
 	function setClaim ( $claim ) {
-		if ( $this->doesClaimExist($claim) ) return true ;
+		if ( !isset ( $claim['claim'] ) ) { // Only for non-qualifier action; should that be fixed?
+			if ( $this->doesClaimExist($claim) ) return true ;
+		}
 
 		// Next fetch the edit token
 		$ch = null;
@@ -550,22 +642,84 @@ Claims are used like this:
 		} else if ( $claim['type'] == 'string' ) {
 			$value = json_encode($claim['text']) ;
 //			$value = '{"type":"string","value":'.json_encode($claim['text']).'}' ;
+		} else if ( $claim['type'] == 'date' ) {
+			$value = '{"time":"'.$claim['date'].'","timezone": 0,"before": 0,"after": 0,"precision": '.$claim['prec'].',"calendarmodel": "http://www.wikidata.org/entity/Q1985727"}' ;
 		}
-	
-
-		$res = $this->doApiQuery( array(
+		
+		$params = array(
 			'format' => 'json',
 			'action' => 'wbcreateclaim',
-			'entity' => $claim['q'],
 			'snaktype' => 'value' ,
 			'property' => 'P' . str_replace('P','',$claim['prop'].'') ,
 			'value' => $value ,
 			'token' => $token,
-		), $ch );
+			'bot' => 1
+		) ;
+	
+		if ( isset ( $claim['claim'] ) ) { // Set qualifier
+			$params['action'] = 'wbsetqualifier' ;
+			$params['claim'] = $claim['claim'] ;
+		} else {
+			$params['entity'] = $claim['q'] ;
+		}
+
+		$res = $this->doApiQuery( $params, $ch );
 		
 		if ( isset ( $_REQUEST['test'] ) ) {
 			print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
 			print "<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+
+		$this->last_res = $res ;
+		if ( isset ( $res->error ) ) return false ;
+
+		
+/*
+		if ( $claim['type'] == 'string' ) {
+			echo 'API edit result: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			echo '<hr>';
+		}
+*/		
+		return true ;
+	}
+
+	function mergeItems ( $q_from , $q_to ) {
+
+		// Next fetch the edit token
+		$ch = null;
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'tokens',
+			'type' => 'edit',
+		), $ch );
+		if ( !isset( $res->tokens->edittoken ) ) {
+			header( "HTTP/1.1 500 Internal Server Error" );
+			echo 'Bad API response[setClaim]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			return false ;
+		}
+		$token = $res->tokens->edittoken;
+	
+	
+	
+
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'wbmergeitems',
+			'fromid' => $q_from ,
+			'toid' => $q_to ,
+			'ignoreconflicts' => 'label|description|sitelink' ,
+			'token' => $token,
+			'bot' => 1
+		), $ch );
+		
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "1<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+			print "2<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+		
+		if ( isset ( $res->error ) ) {
+			$this->error = $res->error->info ;
+			return false ;
 		}
 		
 /*
@@ -577,7 +731,53 @@ Claims are used like this:
 		return true ;
 	}
 
+	function deletePage ( $page , $reason ) {
+
+		// Next fetch the edit token
+		$ch = null;
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'tokens',
+			'type' => 'edit',
+		), $ch );
+		if ( !isset( $res->tokens->edittoken ) ) {
+			header( "HTTP/1.1 500 Internal Server Error" );
+			echo 'Bad API response[setClaim]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			return false ;
+		}
+		$token = $res->tokens->edittoken;
+		
+		$p = array(
+			'format' => 'json',
+			'action' => 'delete',
+			'title' => $page ,
+			'token' => $token,
+			'bot' => 1
+		) ;
+		if ( $reason != '' ) $p['reason'] = $reason ;
 	
+		$res = $this->doApiQuery( $p , $ch );
+		
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "1<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+			print "2<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+		
+		if ( isset ( $res->error ) ) {
+			$this->error = $res->error->info ;
+			return false ;
+		}
+		
+/*
+		if ( $claim['type'] == 'string' ) {
+			echo 'API edit result: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			echo '<hr>';
+		}
+*/		
+		return true ;
+	}
+
+		
 	function doUploadFromURL ( $url , $new_file_name , $desc , $comment ) {
 	
 		if ( $new_file_name == '' ) {
@@ -646,10 +846,11 @@ Claims are used like this:
 		$res = $this->doApiQuery( array(
 			'format' => 'json',
 			'action' => 'query',
+			'uiprop' => 'groups|rights' ,
 			'meta' => 'userinfo',
 		), $ch , 'userinfo' );
 
-		if ( isset( $res->error->code ) && $res->error->code === 'mwoauth-0invalid-authorization' ) {
+		if ( isset( $res->error->code ) && $res->error->code === 'mwoauth-invalid-authorization' ) {
 			// We're not authorized!
 			$this->error = 'You haven\'t authorized this application yet! Go <a target="_blank" href="' . htmlspecialchars( $_SERVER['SCRIPT_NAME'] ) . '?action=authorize">here</a> to do that, then reload this page.' ;
 			return false ;
@@ -677,78 +878,4 @@ Claims are used like this:
 
 
 }
-
-
-///////////////
-
-
-/*
-// Take any requested action
-switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ) {
-	case 'download':
-		header( 'Content-Type: text/plain' );
-		readfile( __FILE__ );
-		return;
-
-	case 'authorize':
-		doAuthorizationRedirect();
-		return;
-
-	case 'edit':
-		doEdit();
-		break;
-}
-*/
-
-// ******************** CODE ********************
-
-
-
-
-
-
-/*
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
- <head>
-  <meta charset="UTF-8" />
-  <title>OAuth Hello World!</title>
- </head>
- <body>
-<p>This is a very simple "<a href="//en.wikipedia.org/wiki/Hello_world_program">Hello world</a>" program to show how to use OAuth. If you so desire, you may <a href="<?php echo htmlspecialchars( $_SERVER['SCRIPT_NAME'] );?>?action=download">download this file</a>. For a more end-user friendly version, look at <a href="enduser.php">enduser.php</a>.</p>
-
-<h2>Overview</h2>
-<p>OAuth is a method for your application to act on behalf of a user on a website, without having to know the user's username and password. First your application is regisetered with the website, then you send the user to a special page on the website where they give your application permission, and then you provide special HTTP headers when accessing the website.</p>
-
-<h2>Creating your consumer</h2>
-<p>To be able to use OAuth in your application, you first need to register it as a consumer. To do this, you visit Special:OAuthConsumerRegistration on the OAuth central wiki. For WMF wikis, this is currently <a href="https://www.mediawiki.org/wiki/Special:OAuthConsumerRegistration/propose">mediawiki.org</a>, but will likely change to Meta once OAuth is fully deployed.</p>
-<p>On this page, you will fill out information required by your application. Most of the fields are straightforward. Of the rest:</p>
-<ul>
- <li>OAuth "callback" URL: After the user authorizes the application, their browser will be sent to this URL. It will be given two parameters, <code>oauth_verifier</code> and <code>oauth_token</code>, which your application will need in order to complete the authorization process.</li>
- <li>Applicable wiki: If your app is only for use in one wiki, specify the wiki id here (this may be retrieved from the API with <code>action=query&amp;meta=siteinfo</code>). If your app is for use on all wikis, specify "*" (without the quotes).</li>
- <li>Applicable grants: Check the checkbox for the grants that provide the rights your application needs. Note that "Basic rights" is almost certainly required, and that even if your application specifies advanced rights such as "Delete pages" your application will still not be able to delete pages on behalf of users who don't already have the delete right.</li>
- <li>Usage restrictions (JSON): This can be used to limit usage of your application, e.g. to certain IP addresses. The default value should be fine.</li>
- <li>Public RSA key: OAuth requires that requests be signed; this can be done by using a shared secret, or by using <a href="https://en.wikipedia.org/wiki/Public-key_cryptography">public-key cryptography</a>. If you want to use the latter, provide a public key here.</li>
-</ul>
-<p>After submitting your registration request, you will be returned a "consumer token" and a "secret token". In this Hello world program, these go in your ini file as consumerKey and consumerSecret. Note you can later update the Usage restrictions and Public RSA key, and can reset the secret token.</p>
-<p>Your application must then be approved by someone with the "mwoauthmanageconsumer" user right.</p>
-
-<h2>Authorizing a user</h2>
-<p>When a new user wishes to use your application, they must first authorize it. You do this by making a call to Special:OAuth/initiate to get a request token, then send the user to Special:OAuth/authorize. If the user authorizes your app, the user will be redirected back to your callback URL with the <code>oauth_verifier</code> parameter set; you then call Special:OAuth/token to fetch the access token.</p>
-
-<h2>Deauthorizing a user</h2>
-<p>A user may revoke the authorization for the application by visiting Special:OAuthManageMyGrants on the OAuth central wiki.</p>
-
-<h2>Try it out!</h2>
-<ul>
- <li><a href="<?php echo htmlspecialchars( $_SERVER['SCRIPT_NAME'] );?>?action=authorize">Authorize this application</a></li>
- <li><a href="<?php echo htmlspecialchars( $_SERVER['SCRIPT_NAME'] );?>?action=edit">Post to your talk page</a></li>
- <li><a href="<?php echo htmlspecialchars( $mytalkUrl );?>">Visit your talk page</a></li>
-</ul>
-
-</body>
-</html>
-
-*/
-
 ?>
