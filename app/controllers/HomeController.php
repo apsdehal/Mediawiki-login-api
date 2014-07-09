@@ -133,19 +133,18 @@
 		}
  	}
 
- 	public function analyzeGetRequests(){
- 		if(isset($_GET['action'])){
- 			unset($_GET['action']);
- 		}
- 		return $_GET;
- 	}
-
+ 	/**
+ 	 * Used to set redirect back to website from which OAuth process was called
+ 	 */	
  	public function setRedirect(){
  		session_start();
  		$_SESSION['redirect_to'] = $_SERVER['HTTP_REFERER'];
  		session_write_close();
  	}
 
+ 	/**
+ 	 * This is the actual place where redirect happens if one is set
+ 	 */	
  	public function checkRedirect(){
  		session_start();
  		if(isset($_SESSION['redirect_to']) && $_SESSION['redirect_to']){
@@ -156,6 +155,11 @@
  		}
  	}
 
+ 	/**
+ 	 * This ensures that OAuth is verified and app is granted access by user
+	 *
+ 	 * @return bool Accordingly the user has been verified or not
+ 	 */	
  	public function ensureAuth () {
 		$ch = null;
 
@@ -200,6 +204,9 @@
 		return true ;
 	}
 
+	/**
+	 * Used to set label to an item, takes params from get request
+	 */	
 	public function setLabel () {		
 		// https://tools.wmflabs.org/widar/index.php?action=set_label&q=Q1980313&lang=en&label=New+Bach+monument+in+Leipzig&botmode=1
 
@@ -224,6 +231,10 @@
 		}
 	}
 
+	/**
+	 * This function is used to create a Wikidata Item from some WikiSister site
+	 * probably Wikipedia
+	 */	
 	public function createItemFromPage() {
 		if ( !$this->ensureAuth() ) return ;
 		$this->show_header() ;
@@ -249,6 +260,9 @@
 		}
 	}
  	
+ 	/**
+ 	 * Function is used to remove a particular claim from a particular item
+ 	 */	
  	public function removeClaim () {
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -302,6 +316,11 @@
 
 		if ( !$this->botmode ) print "</ol>" ;
 	}
+
+	/**
+	 * Function is used particularly to merge two items with all claims copied
+	 * from one to another
+	 */	
 	public function mergeItems () {
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -351,6 +370,9 @@
 		if ( !$this->botmode ) print "</ol>" ;
 	}
 
+	/**
+	 * Function is used in case when we have to set claims a to particular item 
+	 */	
 	public function setClaims() {
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -418,6 +440,9 @@
 
 	}
 
+	/**
+	 * Used to set string to particular property
+	 */	
 	public function setString() {
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -473,6 +498,9 @@
 
 	}
 
+	/**
+	 * Function used to set a date claim to a particular item id and property's value as date
+	 */	
 	public function setDateClaim() {
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -525,6 +553,9 @@
 
 	}
 
+	/**
+	 * Adds a row to a particular page
+	 */	
 	public function addRow () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -539,6 +570,11 @@
 		}
 		
 	}
+
+	/**
+	 * Used to delete page from Wikidata
+	 * Important: Must be provided with a reason
+	 */	
 	public function deletePage () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -553,7 +589,9 @@
 		
 	}
 
-
+	/**
+	 * Append text to a particluar wikidata item page
+	 */	
 	public function appendText () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -571,6 +609,9 @@
 		
 	}
 
+	/**
+	 * Get rights of particluar user.
+	 */	
 	public function getRights () {
 		$this->show_header() ;
 		
@@ -584,6 +625,9 @@
 		
 	}
 
+	/**
+	 * Logout from the OAuth authenticated app
+	 */	
 	public function logout () {
 		$this->show_header() ;
 		
@@ -594,6 +638,10 @@
 			print "<pre>Logged out</pre>" ;
 		}
 	}
+
+	/**
+	 * Displays special information for bots such as errors etc
+	 */	
 	public function bot_out () {
 		if ( isset ( $this->mwClient->error ) ) $this->out['error'] = $this->mwClient->error ;
 		if ( isset($_REQUEST['callback']) ) print $_REQUEST['callback']."(" ;
@@ -601,7 +649,9 @@
 		if ( isset($_REQUEST['callback']) ) print ");" ;
 	}
 
-
+	/**
+	 * Require header for the Homepage
+	 */	
 	public function show_header() {
 		if ( $this->botmode ) return ;
 		print $this->get_common_header ( '' , 'WiALo' ) ;
@@ -609,6 +659,12 @@
 		print "<h1><i>Wi</i>ki<i>Da</i>ta <i>R</i>emote editor</h1>" ;
 	}
 
+	/**
+	 * Return a particular key from $_REQUEST[] global array
+	 *
+	 * @param string $param Particular key that has to be returned
+	 * @param sting $default The default value to be returned in case key is not present
+	 */	
 	public function get_request($param, $default = ''){
 		if(isset($_REQUEST[$param]) && $_REQUEST[$param])
 			return str_replace ( "\'" , "'" , $_REQUEST[$param] ) ;
@@ -616,6 +672,9 @@
 			return $default;
 	}
 
+	/**
+	 * Return the common header fol all type of cases
+	 */	
 	public function get_common_header ( $script , $title , $p = array() ) {
 		if ( !headers_sent() ) {
 			header('Content-type: text/html');
@@ -633,14 +692,24 @@
 		return $s ;
 	}
 
+	/**
+	 * Get common footer for all type of pages
+	 */	
 	public function get_common_footer() {
 		return "</div></div></body></html>" ;
 	}
 
+	/**
+	 * Flush the memory
+	 */	
 	public function myflush(){
 		@ob_flush();
 		 flush();
 	}
+
+	/**
+	 * Default html to printed in case of some error
+	 */	
 	public function printDefault(){
 		print "<div style='margin-bottom:20px'>This is a tool that is used by other tools; it does not have an interface of its own. It can perform batch edits on WikiData under your user name using <a target='_blank' href='https://blog.wikimedia.org/2013/11/22/oauth-on-wikimedia-wikis/'>OAuth</a>.</div>" ;
 		print "<div>" ;
