@@ -148,7 +148,6 @@
  	}
 
  	public function ensureAuth () {
-		global $oa , $botmode , $out ;
 		$ch = null;
 
 		// First fetch the username
@@ -190,6 +189,30 @@
 		}
 		
 		return true ;
+	}
+
+	public function setLabel () {		
+		// https://tools.wmflabs.org/widar/index.php?action=set_label&q=Q1980313&lang=en&label=New+Bach+monument+in+Leipzig&botmode=1
+
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$q = get_request ( 'q' , '' ) ;
+		$lang = get_request ( 'lang' , '' ) ;
+		$label = get_request ( 'label' , '' ) ;
+		
+		if ( $q == '' or $lang == '' or $label == '' ) {
+			$msg = "Needs q, lang, label" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+
+		if ( !$this->mwClient->setLabel ( $q , $label , $lang ) ) {
+			$msg = "Problem setting label" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+		}
 	}
  
  }
