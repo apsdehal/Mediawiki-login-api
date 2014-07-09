@@ -7,4 +7,4 @@ $routes = array(
 	'/wikidata-annotation-tool' => 'HomeController',
 );
 
-Link::all($routes);
+Toro::serve($routes);

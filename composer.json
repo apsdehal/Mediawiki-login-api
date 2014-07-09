@@ -1,6 +1,6 @@
 {
  "require": {
-    "link/link": "dev-master"	
+    "torophp/torophp": "dev-master"	
   },
   "autoload": {
     "classmap": [
