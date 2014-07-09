@@ -16,6 +16,7 @@
  		$this->tool = 'wikidata-annotation-tool';
 		global $botmode;
  		$this->botmode = $botmode;
+ 		$this->miser_mode = false;
 
  	}
 	
@@ -239,5 +240,106 @@
 			else print "<p>$site page '$page' now has Wikidata item ID <a href='//www.wikidata.org/wiki/$q'>$q</a>.</p>" ;
 		}
 	}
- 
+ 	
+ 	public function removeClaim () {
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$id = trim ( get_request ( "id" , '' ) ) ;
+		$baserev = get_request ( 'baserev' , '' ) ;
+		
+		if ( $id == '' ) {
+			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$this->botmode ) {
+			print "<div>Processing claim removal...</div>" ;
+			print "<ol>" ;
+			myflush();
+		}
+
+		if ( !$this->botmode ) {
+			print "<li>Removing $id ... " ;
+			myflush() ;
+		}
+		
+		if ( $this->miser_mode ) {
+			if ( !$this->botmode ) {
+				print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
+				myflush() ;
+			}
+			sleep ( 5 ) ;
+		}
+
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "$id<br/>$baserev" ;
+	//		print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+		}
+
+		if ( $this->mwClient->removeClaim ( $id , $baserev ) ) {
+			if ( !$botmode ) print "done.\n" ;
+		} else {
+			$msg = "failed!" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "$msg\n" ;
+		}
+		if ( !$this->botmode )  {
+			print "</li>" ;
+			myflush() ;
+		}
+
+		if ( !$this->botmode ) print "</ol>" ;
+	}
+	public function mergeItems () {
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$q_from = trim ( get_request ( "from" , '' ) ) ;
+		$q_to = trim ( get_request ( "to" , '' ) ) ;
+		
+		if ( $q_from == '' or $q_to == '' ) {
+			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$this->botmode ) {
+			print "<div>Processing merging...</div>" ;
+			print "<ol>" ;
+			myflush();
+		}
+		
+		if ( $this->miser_mode ) {
+			if ( !$this->botmode ) {
+				print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
+				myflush() ;
+			}
+			sleep ( 5 ) ;
+		}
+
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "$q_from<br/>$q_to" ;
+	//		print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+		}
+
+		if ( $this->mwClient->mergeItems($q_from,$q_to) ) {
+			if ( !$this->botmode ) print "done.\n" ;
+		} else {
+			$msg = "failed!" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "$msg\n" ;
+		}
+		if ( !$this->botmode )  {
+			print "</li>" ;
+			myflush() ;
+		}
+
+		if ( !$this->botmode ) print "</ol>" ;
+	}
  }
