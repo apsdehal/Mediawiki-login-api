@@ -214,5 +214,30 @@
 			else print "<pre>$msg</pre>" ;
 		}
 	}
+
+	public function createItemFromPage() {
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$site = get_request ( 'site' , '' ) ;
+		$page = get_request ( 'page' , '' ) ;
+		
+		if ( $site == '' or $page == '' ) {
+			$msg = "Needs site and page" ;
+			if ( $$this->botmode ) $$this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$$this->mwClient->createItemFromPage ( $site , $page ) ) {
+			$msg = "Problem creating item" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+		} else {
+			$q = $this->mwClient->last_res->entity->id ;
+			if ( $this->botmode ) $this->out['q'] = $q ;
+			else print "<p>$site page '$page' now has Wikidata item ID <a href='//www.wikidata.org/wiki/$q'>$q</a>.</p>" ;
+		}
+	}
  
  }
