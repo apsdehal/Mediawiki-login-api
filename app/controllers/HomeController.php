@@ -14,6 +14,9 @@
 
   	public function __construct(){
  		$this->tool = 'wikidata-annotation-tool';
+		global $botmode;
+ 		$this->botmode = $botmode;
+
  	}
 	
  	/**
@@ -23,111 +26,98 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
-
  		$this->mwClient = new MW_OAuth(	'Wikidata-Annotation', 'wikidata', 'www' );
 
  		$this->checkRedirect();
 
- 		$this->addHeaders();
-
 		$this->out = array ( 'error' => 'OK' , 'data' => array() );
-
-		$botmode = isset ( $_REQUEST['botmode'] ) ;
-
-		if ( $botmode ) {
-			header ( 'application/json' ) ; // text/plain
-		} else {
-			error_reporting(E_ERROR|E_CORE_ERROR|E_ALL|E_COMPILE_ERROR);
-			ini_set('display_errors', 'On');
-		}
-
  		
 		switch ( isset( $_GET['action'] ) ? $_GET['action'] : '' ) {
 			case 'authorize':
-				$oa->doAuthorizationRedirect();
+				$this->mwClient->doAuthorizationRedirect();
 				exit ( 0 ) ;
 				return;
 			
 			case 'remove_claim' :
-				removeClaim() ;
-				if ( $botmode ) bot_out() ;
+				$this->removeClaim() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_claims':
-				setClaims() ;
-				if ( $botmode ) bot_out() ;
+				$this->setClaims() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'merge_items':
-				mergeItems() ;
-				if ( $botmode ) bot_out() ;
+				$this->mergeItems() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_label':
-				setLabel() ;
-				if ( $botmode ) bot_out() ;
+				$this->setLabel() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_string':
-				setString() ;
-				if ( $botmode ) bot_out() ;
+				$this->setString() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'get_rights':
-				getRights() ;
-				if ( $botmode ) bot_out() ;
+				$this->getRights() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'logout':
-				logout() ;
-				if ( $botmode ) bot_out() ;
+				$this->logout() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 			
 			case 'set_date':
-				setDateClaim() ;
-				if ( $botmode ) bot_out() ;
+				$this->setDateClaim() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'create_item_from_page':
-				createItemFromPage() ;
-				if ( $botmode ) bot_out() ;
+				$this->createItemFromPage() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'delete':
-				deletePage() ;
-				if ( $botmode ) bot_out() ;
+				$this->deletePage() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'add_row': // Adds a text row to a non-item page
-				addRow() ;
-				if ( $botmode ) bot_out() ;
+				$this->addRow() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 				
 			case 'append' :
-				appendText() ;
-				if ( $botmode ) bot_out() ;
+				$this->appendText() ;
+				if ( $this->botmode ) bot_out() ;
 				else print get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
@@ -157,11 +147,49 @@
  		}
  	}
 
- 	public function addHeaders(){
-		header('Content-type: application/json');
-		header('Access-Control-Allow-Origin: *'); 
-		header('Access-Control-Allow-Headers:Content-Type, X-Requested-With, Accept');
-		header('Access-Control-Allow-Methods:HEAD, GET, POST, PUT, DELETE, OPTIONS');
- 	}
+ 	public function ensureAuth () {
+		global $oa , $botmode , $out ;
+		$ch = null;
+
+		// First fetch the username
+		$res = $this->mwClient->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'query',
+			'meta' => 'userinfo',
+		), $ch );
+
+		if ( isset( $res->error->code ) && $res->error->code === 'mwoauth-invalid-authorization' ) {
+			// We're not authorized!
+			$msg = 'You haven\'t authorized this application yet! Go <a target="_blank" href="' . htmlspecialchars( $_SERVER['SCRIPT_NAME'] ) . '?action=authorize">here</a> to do that, then reload this page.' ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else echo $msg . '<hr>';
+			return false ;
+		}
+
+		if ( !isset( $res->query->userinfo ) ) {
+			$msg = 'Bad API response[1]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>' ;
+			if ( $this->botmode ) {
+				$this->out['error'] = $msg ;
+				return false ;
+			} else {
+				header( "HTTP/1.1 500 Internal Server Error" );
+				echo $msg;
+				exit(0);
+			}
+		}
+		if ( isset( $res->query->userinfo->anon ) ) {
+			$msg = 'Not logged in. (How did that happen?)' ;
+			if ( $this->botmode ) {
+				$this->out['error'] = $msg ;
+				return false ;
+			} else {
+				header( "HTTP/1.1 500 Internal Server Error" );
+				echo $msg;
+				exit(0);
+			}
+		}
+		
+		return true ;
+	}
  
  }
