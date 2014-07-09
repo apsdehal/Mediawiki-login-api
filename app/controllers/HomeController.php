@@ -206,9 +206,9 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$q = get_request ( 'q' , '' ) ;
-		$lang = get_request ( 'lang' , '' ) ;
-		$label = get_request ( 'label' , '' ) ;
+		$q = $this->get_request ( 'q' , '' ) ;
+		$lang = $this->get_request ( 'lang' , '' ) ;
+		$label = $this->get_request ( 'label' , '' ) ;
 		
 		if ( $q == '' or $lang == '' or $label == '' ) {
 			$msg = "Needs q, lang, label" ;
@@ -228,8 +228,8 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$site = get_request ( 'site' , '' ) ;
-		$page = get_request ( 'page' , '' ) ;
+		$site = $this->get_request ( 'site' , '' ) ;
+		$page = $this->get_request ( 'page' , '' ) ;
 		
 		if ( $site == '' or $page == '' ) {
 			$msg = "Needs site and page" ;
@@ -254,8 +254,8 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$id = trim ( get_request ( "id" , '' ) ) ;
-		$baserev = get_request ( 'baserev' , '' ) ;
+		$id = trim ( $this->get_request ( "id" , '' ) ) ;
+		$baserev = $this->get_request ( 'baserev' , '' ) ;
 		
 		if ( $id == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -307,8 +307,8 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$q_from = trim ( get_request ( "from" , '' ) ) ;
-		$q_to = trim ( get_request ( "to" , '' ) ) ;
+		$q_from = trim ( $this->get_request ( "from" , '' ) ) ;
+		$q_to = trim ( $this->get_request ( "to" , '' ) ) ;
 		
 		if ( $q_from == '' or $q_to == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -356,10 +356,10 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$ids = explode ( "," , get_request ( "ids" , '' ) ) ;
-		$prop = get_request ( 'prop' , '' ) ;
-		$target = get_request ( 'target' , '' ) ;
-		$qualifier_claim = get_request ( 'claim' , '' ) ;
+		$ids = explode ( "," , $this->get_request ( "ids" , '' ) ) ;
+		$prop = $this->get_request ( 'prop' , '' ) ;
+		$target = $this->get_request ( 'target' , '' ) ;
+		$qualifier_claim = $this->get_request ( 'claim' , '' ) ;
 		
 		if ( count($ids) == 0 or $prop == '' or $target == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -423,10 +423,10 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$id = trim ( get_request ( "id" , '' ) ) ;
-		$prop = get_request ( 'prop' , '' ) ;
-		$text = get_request ( 'text' , '' ) ;
-		$qualifier_claim = get_request ( 'claim' , '' ) ;
+		$id = trim ( $this->get_request ( "id" , '' ) ) ;
+		$prop = $this->get_request ( 'prop' , '' ) ;
+		$text = $this->get_request ( 'text' , '' ) ;
+		$qualifier_claim = $this->get_request ( 'claim' , '' ) ;
 		
 		if ( ( $id == '' and $qualifier_claim == '' ) or $prop == '' or $text == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -478,10 +478,10 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$id = trim ( get_request ( "id" , '' ) ) ;
-		$prop = get_request ( 'prop' , '' ) ;
-		$date = get_request ( 'date' , '' ) ;
-		$prec = get_request ( 'prec' , '' ) ;
+		$id = trim ( $this->get_request ( "id" , '' ) ) ;
+		$prop = $this->get_request ( 'prop' , '' ) ;
+		$date = $this->get_request ( 'date' , '' ) ;
+		$prec = $this->get_request ( 'prec' , '' ) ;
 		
 		if ( $id == '' or $prop == '' or $date == '' or $prec == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -530,8 +530,8 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$page = trim ( get_request ( "page" , '' ) ) ;
-		$row = trim ( get_request ( "row" , '' ) ) ;
+		$page = trim ( $this->get_request ( "page" , '' ) ) ;
+		$row = trim ( $this->get_request ( "row" , '' ) ) ;
 		$text = file_get_contents ( 'http://www.wikidata.org/w/index.php?action=raw&title='.urlencode($page) ) ;
 		$text = trim ( $text ) . "\n" . $row ;
 		
@@ -544,8 +544,8 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$page = trim ( get_request ( "page" , '' ) ) ;
-		$reason = trim ( get_request ( "reason" , '' ) ) ;
+		$page = trim ( $this->get_request ( "page" , '' ) ) ;
+		$reason = trim ( $this->get_request ( "reason" , '' ) ) ;
 		
 		if ( ! $this->mwClient->deletePage ( $page , $reason ) ) {
 			$this->out['error'] = $this->mwClient->error ;
@@ -559,11 +559,11 @@
 		if ( !$this->ensureAuth() ) return ;
 		show_header() ;
 
-		$page = trim ( get_request ( "page" , '' ) ) ;
-		$text = get_request ( "text" , '' ) ;
-		$header = get_request ( "header" , '' ) ;
-		$summary = get_request ( 'summary' , '' ) ;
-		$section = get_request ( 'section' , '' ) ;
+		$page = trim ( $this->get_request ( "page" , '' ) ) ;
+		$text = $this->get_request ( "text" , '' ) ;
+		$header = $this->get_request ( "header" , '' ) ;
+		$summary = $this->get_request ( 'summary' , '' ) ;
+		$section = $this->get_request ( 'section' , '' ) ;
 		
 		if ( ! $this->mwClient->addPageText ( $page , $text , $header , $summary , $section ) ) {
 			$this->out['error'] = $this->mwClient->error ;
@@ -607,6 +607,14 @@
 		print get_common_header ( '' , 'WiDaR' ) ;
 		print "<div style='float:right'><a href='//en.wikipedia.org/wiki/Widar' title='Víðarr, slaying the dragon of missing claims'><img border=0 src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vidar_by_Collingwood.jpg/150px-Vidar_by_Collingwood.jpg' /></a></div>" ;
 		print "<h1><i>Wi</i>ki<i>Da</i>ta <i>R</i>emote editor</h1>" ;
+	}
+
+	public function get_request($param, $default = ''){
+		if(isset($_REQUEST[$param]) && $_REQUEST[$param]){
+			return $_REQUEST[$param];
+		} else {
+			return $default;
+		}
 	}
 
 	public function printDefault(){
