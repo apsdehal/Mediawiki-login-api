@@ -562,4 +562,28 @@
 		}
 		
 	}
+
+	public function getRights () {
+		show_header() ;
+		
+		$res = $this->mwClient->getConsumerRights() ;
+		
+		if ( $this->botmode ) {
+			$this->out['result'] = $res ;
+		} else {
+			print "<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+		
+	}
+
+	public function logout () {
+		show_header() ;
+		
+		$this->mwClient->logout() ;
+		
+		if ( $this->botmode ) {
+		} else {
+			print "<pre>Logged out</pre>" ;
+		}
+	}
  }
