@@ -464,4 +464,71 @@
 		if ( !$this->botmode ) print "</ol>" ;
 
 	}
+
+	public function setDateClaim() {
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$id = trim ( get_request ( "id" , '' ) ) ;
+		$prop = get_request ( 'prop' , '' ) ;
+		$date = get_request ( 'date' , '' ) ;
+		$prec = get_request ( 'prec' , '' ) ;
+		
+		if ( $id == '' or $prop == '' or $date == '' or $prec == '' ) {
+			$msg = "Parameters incomplete." ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$this->botmode ) {
+			print "<div>Processing items $id...</div>" ;
+			print "<ol>" ;
+			myflush();
+		}
+
+		if ( !$this->botmode ) {
+			print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $text ... " ;
+			myflush() ;
+		}
+
+		$claim = array (
+			"prop" => $prop ,
+			"q" => $id ,
+			"date" => $date ,
+			"prec" => $prec ,
+			"type" => "date"
+		) ;
+		
+	//	print_r ( $claim ) ;
+
+		if ( $this->mwClient->setClaim ( $claim ) ) {
+			if ( !$this->botmode ) print "done.\n" ;
+		} else {
+			$msg = "failed!" ;
+			else print "$msg\n" ;
+		}
+		if ( !$this->botmode )  {
+			print "</li>" ;
+			myflush() ;
+		}
+
+		if ( !$this->botmode ) print "</ol>" ;
+
+	}
+	
+	public function addRow () { // ASSUMING BOTMODE
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$page = trim ( get_request ( "page" , '' ) ) ;
+		$row = trim ( get_request ( "row" , '' ) ) ;
+		$text = file_get_contents ( 'http://www.wikidata.org/w/index.php?action=raw&title='.urlencode($page) ) ;
+		$text = trim ( $text ) . "\n" . $row ;
+		
+		if ( ! $this->mwClient->setPageText ( $page , $text ) ) {
+		}
+		
+	}
  }
