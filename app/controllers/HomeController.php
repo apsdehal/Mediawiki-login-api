@@ -342,4 +342,126 @@
 
 		if ( !$this->botmode ) print "</ol>" ;
 	}
+
+	public function setClaims() {
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$ids = explode ( "," , get_request ( "ids" , '' ) ) ;
+		$prop = get_request ( 'prop' , '' ) ;
+		$target = get_request ( 'target' , '' ) ;
+		$qualifier_claim = get_request ( 'claim' , '' ) ;
+		
+		if ( count($ids) == 0 or $prop == '' or $target == '' ) {
+			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$this->botmode ) {
+			print "<div>Batch-processing " . count($ids) . " items...</div>" ;
+			print "<ol>" ;
+			myflush();
+		}
+
+		foreach ( $ids AS $id ) {
+			$id = trim ( $id ) ;
+			if ( $id == '' && $qualifier_claim == '' ) continue ;
+			if ( !$this->botmode ) {
+				print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $target ... " ;
+				myflush() ;
+			}
+			
+			if ( $this->miser_mode ) {
+				if ( !$this->botmode ) {
+					print " [delaying edit 5 seconds - temporary measure to not overload Wikidata-Wikipedia sync] " ;
+					myflush() ;
+				}
+				sleep ( 5 ) ;
+			}
+
+			$claim = array (
+				"prop" => $prop ,
+	//			"q" => $id ,
+				"target" => $target ,
+				"type" => "item"
+			) ;
+			
+			if ( $qualifier_claim == '' ) $claim['q'] = $id ;
+			else $claim['claim'] = $qualifier_claim ;
+		
+			if ( $this->mwClient->setClaim ( $claim ) ) {
+				if ( !$this->botmode ) print "done.\n" ;
+				else $this->out['res'] = $oa->last_res ;
+			} else {
+				$msg = "failed!" ;
+				if ( $this->botmode ) $this->out['error'] = $msg ;
+				else print "$msg\n" ;
+			}
+			if ( !$this->botmode )  {
+				print "</li>" ;
+				myflush() ;
+			}
+			
+		}
+		if ( !$this->botmode ) print "</ol>" ;
+
+	}
+
+	public function setString() {
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$id = trim ( get_request ( "id" , '' ) ) ;
+		$prop = get_request ( 'prop' , '' ) ;
+		$text = get_request ( 'text' , '' ) ;
+		$qualifier_claim = get_request ( 'claim' , '' ) ;
+		
+		if ( ( $id == '' and $qualifier_claim == '' ) or $prop == '' or $text == '' ) {
+			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+		
+		if ( !$this->botmode ) {
+			print "<div>Processing items $id...</div>" ;
+			print "<ol>" ;
+			myflush();
+		}
+
+		if ( !$this->botmode ) {
+			print "<li><a href='//www.wikidata.org/wiki/$id'>$id</a> : $prop => $text ... " ;
+			myflush() ;
+		}
+
+		$claim = array (
+			"prop" => $prop ,
+	//		"q" => $id ,
+			"text" => $text ,
+			"type" => "string"
+		) ;
+
+		if ( $qualifier_claim == '' ) $claim['q'] = $id ;
+		else $claim['claim'] = $qualifier_claim ;
+
+		if ( $this->mwClient->setClaim ( $claim ) ) {
+			if ( !$this->botmode ) print "done.\n" ;
+			else $this->out['res'] = $this->mwClient->last_res ;
+		} else {
+			$msg = "failed!" ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "$msg\n" ;
+		}
+		if ( !$this->botmode )  {
+			print "</li>" ;
+			myflush() ;
+		}
+
+		if ( !$this->botmode ) print "</ol>" ;
+
+	}
  }
