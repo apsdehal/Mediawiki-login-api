@@ -516,7 +516,7 @@
 		if ( !$this->botmode ) print "</ol>" ;
 
 	}
-	
+
 	public function addRow () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
@@ -528,6 +528,37 @@
 		$text = trim ( $text ) . "\n" . $row ;
 		
 		if ( ! $this->mwClient->setPageText ( $page , $text ) ) {
+		}
+		
+	}
+	public function deletePage () { // ASSUMING BOTMODE
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$page = trim ( get_request ( "page" , '' ) ) ;
+		$reason = trim ( get_request ( "reason" , '' ) ) ;
+		
+		if ( ! $this->mwClient->deletePage ( $page , $reason ) ) {
+			$this->out['error'] = $this->mwClient->error ;
+		}
+		
+	}
+
+
+	public function appendText () { // ASSUMING BOTMODE
+		
+		if ( !$this->ensureAuth() ) return ;
+		show_header() ;
+
+		$page = trim ( get_request ( "page" , '' ) ) ;
+		$text = get_request ( "text" , '' ) ;
+		$header = get_request ( "header" , '' ) ;
+		$summary = get_request ( 'summary' , '' ) ;
+		$section = get_request ( 'section' , '' ) ;
+		
+		if ( ! $this->mwClient->addPageText ( $page , $text , $header , $summary , $section ) ) {
+			$this->out['error'] = $this->mwClient->error ;
 		}
 		
 	}
