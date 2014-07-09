@@ -42,84 +42,84 @@
 			case 'remove_claim' :
 				$this->removeClaim() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_claims':
 				$this->setClaims() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'merge_items':
 				$this->mergeItems() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_label':
 				$this->setLabel() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'set_string':
 				$this->setString() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'get_rights':
 				$this->getRights() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'logout':
 				$this->logout() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 			
 			case 'set_date':
 				$this->setDateClaim() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'create_item_from_page':
 				$this->createItemFromPage() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'delete':
 				$this->deletePage() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 
 			case 'add_row': // Adds a text row to a non-item page
 				$this->addRow() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 				
 			case 'append' :
 				$this->appendText() ;
 				if ( $this->botmode ) bot_out() ;
-				else print get_common_footer() ;
+				else print $this->get_common_footer() ;
 				exit ( 0 ) ;
 				return ;
 		}
@@ -204,7 +204,7 @@
 		// https://tools.wmflabs.org/widar/index.php?action=set_label&q=Q1980313&lang=en&label=New+Bach+monument+in+Leipzig&botmode=1
 
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$q = $this->get_request ( 'q' , '' ) ;
 		$lang = $this->get_request ( 'lang' , '' ) ;
@@ -226,7 +226,7 @@
 
 	public function createItemFromPage() {
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$site = $this->get_request ( 'site' , '' ) ;
 		$page = $this->get_request ( 'page' , '' ) ;
@@ -252,7 +252,7 @@
  	public function removeClaim () {
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$id = trim ( $this->get_request ( "id" , '' ) ) ;
 		$baserev = $this->get_request ( 'baserev' , '' ) ;
@@ -305,7 +305,7 @@
 	public function mergeItems () {
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$q_from = trim ( $this->get_request ( "from" , '' ) ) ;
 		$q_to = trim ( $this->get_request ( "to" , '' ) ) ;
@@ -354,7 +354,7 @@
 	public function setClaims() {
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$ids = explode ( "," , $this->get_request ( "ids" , '' ) ) ;
 		$prop = $this->get_request ( 'prop' , '' ) ;
@@ -421,7 +421,7 @@
 	public function setString() {
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$id = trim ( $this->get_request ( "id" , '' ) ) ;
 		$prop = $this->get_request ( 'prop' , '' ) ;
@@ -476,7 +476,7 @@
 	public function setDateClaim() {
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$id = trim ( $this->get_request ( "id" , '' ) ) ;
 		$prop = $this->get_request ( 'prop' , '' ) ;
@@ -528,7 +528,7 @@
 	public function addRow () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$page = trim ( $this->get_request ( "page" , '' ) ) ;
 		$row = trim ( $this->get_request ( "row" , '' ) ) ;
@@ -542,7 +542,7 @@
 	public function deletePage () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$page = trim ( $this->get_request ( "page" , '' ) ) ;
 		$reason = trim ( $this->get_request ( "reason" , '' ) ) ;
@@ -557,7 +557,7 @@
 	public function appendText () { // ASSUMING BOTMODE
 		
 		if ( !$this->ensureAuth() ) return ;
-		show_header() ;
+		$this->show_header() ;
 
 		$page = trim ( $this->get_request ( "page" , '' ) ) ;
 		$text = $this->get_request ( "text" , '' ) ;
@@ -572,7 +572,7 @@
 	}
 
 	public function getRights () {
-		show_header() ;
+		$this->show_header() ;
 		
 		$res = $this->mwClient->getConsumerRights() ;
 		
@@ -585,7 +585,7 @@
 	}
 
 	public function logout () {
-		show_header() ;
+		$this->show_header() ;
 		
 		$this->mwClient->logout() ;
 		
@@ -604,19 +604,43 @@
 
 	public function show_header() {
 		if ( $this->botmode ) return ;
-		print get_common_header ( '' , 'WiDaR' ) ;
+		print $this->get_common_header ( '' , 'WiALo' ) ;
 		print "<div style='float:right'><a href='//en.wikipedia.org/wiki/Widar' title='Víðarr, slaying the dragon of missing claims'><img border=0 src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vidar_by_Collingwood.jpg/150px-Vidar_by_Collingwood.jpg' /></a></div>" ;
 		print "<h1><i>Wi</i>ki<i>Da</i>ta <i>R</i>emote editor</h1>" ;
 	}
 
 	public function get_request($param, $default = ''){
-		if(isset($_REQUEST[$param]) && $_REQUEST[$param]){
-			return $_REQUEST[$param];
-		} else {
+		if(isset($_REQUEST[$param]) && $_REQUEST[$param])
+			return str_replace ( "\'" , "'" , $_REQUEST[$param] ) ;
+		else 
 			return $default;
-		}
 	}
 
+	public function get_common_header ( $script , $title , $p = array() ) {
+		if ( !headers_sent() ) {
+			header('Content-type: text/html');
+			header("Cache-Control: no-cache, must-revalidate");
+		}
+		$s = file_get_contents ( 'app/views/header.html' ) ;
+		if ( isset ( $p['style'] ) ) $s = str_replace ( '</style>' , $p['style'].'</style>' , $s ) ;
+		if ( isset ( $p['script'] ) ) $s = str_replace ( '</script>' , $p['script'].'</script>' , $s ) ;
+		
+		$misc = '' ;
+		if ( isset ( $p['link'] ) ) $misc .= $p['link'] ;
+		$s = str_replace ( '<!--header_misc-->' , $misc , $s ) ;
+		
+		$s = str_replace ( '$$TITLE$$' , $title , $s ) ;
+		return $s ;
+	}
+
+	public function get_common_footer() {
+		return "</div></div></body></html>" ;
+	}
+
+	public function myflush(){
+		@ob_flush();
+		 flush();
+	}
 	public function printDefault(){
 		print "<div style='margin-bottom:20px'>This is a tool that is used by other tools; it does not have an interface of its own. It can perform batch edits on WikiData under your user name using <a target='_blank' href='https://blog.wikimedia.org/2013/11/22/oauth-on-wikimedia-wikis/'>OAuth</a>.</div>" ;
 		print "<div>" ;
@@ -646,7 +670,7 @@
 		</ul>
 		</div>" ;
 
-		print get_common_footer() ;
+		print $this->get_common_footer() ;
 
 	}
 
