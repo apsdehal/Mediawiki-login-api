@@ -14,6 +14,8 @@ class MW_OAuth {
 		$this->tool = $t ;
 		$this->language = $l ;
 		$this->project = $p ;
+		// var_dump("$this->tool");
+		// die();
 		
 		if ( $l == 'wikidata' ) $this->apiUrl = 'https://www.wikidata.org/w/api.php' ;
 		else if ( $l == 'commons' ) $this->apiUrl = 'https://commons.wikimedia.org/w/api.php' ;
