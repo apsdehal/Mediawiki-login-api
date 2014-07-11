@@ -27,7 +27,7 @@
  	 * Also return the user info, <= todo after testing
  	 */	
  	public function get(){
- 		$this->mwClient = new MW_OAuth ( 'wikidata-annotation-tool' , 'wikidata' , 'wikidata' ) ;
+ 		$this->mwClient = new MW_OAuth ( 'login' , 'wikidata' , 'wwww' ) ;
 
  		$this->checkRedirect();
 
@@ -658,8 +658,8 @@
 	public function show_header() {
 		if ( $this->botmode ) return ;
 		print $this->get_common_header ( '' , 'WiALo' ) ;
-		print "<div style='float:right'><a href='//en.wikipedia.org/wiki/Widar' title='Víðarr, slaying the dragon of missing claims'><img border=0 src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vidar_by_Collingwood.jpg/150px-Vidar_by_Collingwood.jpg' /></a></div>" ;
-		print "<h1><i>Wi</i>ki<i>Da</i>ta <i>R</i>emote editor</h1>" ;
+		print "<div style='float:right'><img border=0 src='https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Vidar_by_Collingwood.jpg/150px-Vidar_by_Collingwood.jpg' /></a></div>" ;
+		print "<h1><i>W</i>eb <i>A</i>nnotator <i>L</i>ogin</h1>" ;
 	}
 
 	/**
@@ -711,7 +711,7 @@
 	}
 
 	/**
-	 * Default html to printed in case of some error
+	 * Default html to be printed in case of no action
 	 */	
 	public function printDefault(){
 		print "<div style='margin-bottom:20px'>This is a tool that is used by other tools; it does not have an interface of its own. It can perform batch edits on WikiData under your user name using <a target='_blank' href='https://blog.wikimedia.org/2013/11/22/oauth-on-wikimedia-wikis/'>OAuth</a>.</div>" ;
@@ -721,9 +721,9 @@
 		$res = $this->mwClient->getConsumerRights() ;
 	//	print "<pre>" ;print_r ( $res ) ;print "</pre>" ;
 		if ( isset ( $res->error ) ) {
-			print "You have not authorized Widar to perform edits on Wikidata on your behalf. <a href='".htmlspecialchars( $_SERVER['SCRIPT_NAME'] )."?action=authorize'>Authorize WiDaR now</a>." ;
+			print "You have not authorized WAL to perform edits on Wikidata on your behalf. <a href='".htmlspecialchars( $_SERVER['SCRIPT_NAME'] )."?action=authorize'>Authorize WiDaR now</a>." ;
 		} else {
-			print "You have authorized WiDaR to edit as " . $res->query->userinfo->name . ". Congratulations! You can always log out <a href='?action=logout'>here</a>." ;
+			print "You have authorized WAL to edit as " . $res->query->userinfo->name . ". Congratulations! You can always log out <a href='?action=logout'>here</a>. Kindly go back to login page to push your annotations" ;
 		}
 		
 		
@@ -733,14 +733,6 @@
 		
 		//print "<div><a href='".htmlspecialchars( $_SERVER['SCRIPT_NAME'] )."?action=edit'>Edit</a></div>" ;
 
-		print "<div><h3>Tools using WiDaR</h3>
-		<ul>
-		<li><a href='/wikidata-todo/autolist.html'>AutoList</a> and <a href='/wikidata-todo/autolist2.php'>AutoList 2</a></li>
-		<li><a href='/reasonator'>Reasonator</a></li>
-		<li><a href='/wikidata-todo/creator.html'>Wikidata item creator</a></li>
-		<li><a href='/wikidata-game/'>The Wikidata Game</a></li>
-		</ul>
-		</div>" ;
 
 		print $this->get_common_footer() ;
 
