@@ -685,6 +685,64 @@ Claims are used like this:
 		return true ;
 	}
 
+	function setReference ( $data ) {
+		$ch = null;
+
+		$statement = $data['statement'];
+		$refprop = $data['refprop'];
+		$value = $data['value'];
+		$datatype = $data['datatype'];
+
+		//Fetch edit token
+		$res = $this->doApiQuery( array(
+			'format' => 'json',
+			'action' => 'tokens',
+			'type' => 'edit',
+		), $ch );
+
+		if ( !isset( $res->tokens->edittoken ) ) {
+			header( "HTTP/1.1 500 Internal Server Error" );
+			echo 'Bad API response[setClaim]: <pre>' . htmlspecialchars( var_export( $res, 1 ) ) . '</pre>';
+			return false ;
+		}
+
+		$token = $res->tokens->edittoken;
+
+		$snak = array(
+			$refprop => array( array(
+				"snaktype" => "value",
+				"property" => $refprop,
+				"datatype" => $datatype,
+				"datavalue" => array(
+					"type" => "value",
+					"value" => $value
+					)
+			))
+		);
+
+		$params = array(
+			'format' => 'json',
+			'action' => 'wbsetreference',
+			'statement' => $statement,
+			'snaks' => json_encode($snak),
+			'token' => $token,
+			'bot' => 1
+			);
+
+		$res = $this->doApiQuery( $params, $ch );
+		
+		if ( isset ( $_REQUEST['test'] ) ) {
+			print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
+			print "<pre>" ; print_r ( $res ) ; print "</pre>" ;
+		}
+
+		$this->last_res = $res ;
+		if ( isset ( $res->error ) ) return false ;
+
+		return true;
+
+	}
+
 	function mergeItems ( $q_from , $q_to ) {
 
 		// Next fetch the edit token
