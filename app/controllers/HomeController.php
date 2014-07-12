@@ -424,7 +424,7 @@
 		
 			if ( $this->mwClient->setClaim ( $claim ) ) {
 				if ( !$this->botmode ) print "done.\n" ;
-				else $this->out['res'] = $oa->last_res ;
+				else $this->out['res'] = $this->mwClient->last_res ;
 			} else {
 				$msg = "failed!" ;
 				if ( $this->botmode ) $this->out['error'] = $msg ;
