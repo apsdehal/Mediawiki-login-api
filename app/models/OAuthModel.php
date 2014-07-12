@@ -311,13 +311,6 @@ class MW_OAuth {
 		$post_fields = '' ;
 		if ( $mode == 'upload' ) {
 			$post_fields = $post ;
-		} else if( $mode == 'statement' ){
-			$statement = $post['statement'];
-			$snaks = $post['snaks'];
-			unset($post['statement']);
-			unset($post['snaks']);
-			$post_fields = http_build_query( $post ) ;
-			$post_fields .= '&statement=' . $statement . '&snaks=' . $snaks;
 		} else {
 			$post_fields = http_build_query( $post ) ;
 		}
@@ -737,8 +730,7 @@ Claims are used like this:
 			'token' => $token,
 			'bot' => 1
 			);
-		$mode = 'statement';
-		$res = $this->doApiQuery( $params, $ch, $mode );
+		$res = $this->doApiQuery( $params, $ch );
 		
 		if ( isset ( $_REQUEST['test'] ) ) {
 			print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
