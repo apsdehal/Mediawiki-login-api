@@ -81,6 +81,13 @@
 				exit ( 0 ) ;
 				return ;
 
+			case 'set_reference':
+				$this->setReference();
+				if( $this->botmode ) $this->bot_out();
+				else print $this->get_common_footer();
+				exit( 0 );
+				return;	
+
 			case 'logout':
 				$this->logout() ;
 				if ( $this->botmode ) $this->bot_out() ;
@@ -631,10 +638,11 @@
 	public function setReference(){
 		if( !$this->ensureAuth() )
 			return;
-		$statement = $this->get_request( "statement" );
-		$refprop = $this->get_request( "refprop" );
-		$value = $this->get_request( "value" );
-		$datatype = $this->get_request("datatype");
+		$statement = $this->get_request( "statement" , '' );
+		$refprop = $this->get_request( "refprop", '' );
+		$value = $this->get_request( "value" , '' );
+		$datatype = $this->get_request( "datatype", '' );
+		$revid = $this->get_request( "revid", '' );
 
 		if ( $statement == '' or $datatype == '' or $refprop == '' or $value == '' ) {
 			$msg = "Parameters incomplete." ;
@@ -647,17 +655,17 @@
 			'statement' => $statement,
 			'refprop' => $refprop,
 			'value' => $value,
-			'datatype' => $datatype
+			'datatype' => $datatype,
+			'revid' => $revid
 			);
 
 		if( $this->mwClient->setReference( $data ) ){
 				if ( !$this->botmode ) print "done.\n" ;
 				else $this->out['res'] = $this->mwClient->last_res ;
-			} else {
-				$msg = "failed!" ;
-				if ( $this->botmode ) $this->out['error'] = $msg ;
-				else print "$msg\n" ;
-			}
+		} else {
+			$msg = "failed!" ;
+			if ( $this->botmode ) $this->out['error'] = $this->mwClient->last_res ;
+			else print "$msg\n" ;
 		}	
 	}
 

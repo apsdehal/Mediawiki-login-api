@@ -311,6 +311,13 @@ class MW_OAuth {
 		$post_fields = '' ;
 		if ( $mode == 'upload' ) {
 			$post_fields = $post ;
+		} else if( $mode == 'statement' ){
+			$statement = $post['statement'];
+			$snaks = $post['snaks'];
+			unset($post['statement']);
+			unset($post['snaks']);
+			$post_fields = http_build_query( $post ) ;
+			$post_fields .= '&statement=' . $statement . '&snaks=' . $snaks;
 		} else {
 			$post_fields = http_build_query( $post ) ;
 		}
@@ -692,6 +699,7 @@ Claims are used like this:
 		$refprop = $data['refprop'];
 		$value = $data['value'];
 		$datatype = $data['datatype'];
+		$revid = $data['revid'];
 
 		//Fetch edit token
 		$res = $this->doApiQuery( array(
@@ -714,7 +722,7 @@ Claims are used like this:
 				"property" => $refprop,
 				"datatype" => $datatype,
 				"datavalue" => array(
-					"type" => "value",
+					"type" => "string",
 					"value" => $value
 					)
 			))
@@ -724,18 +732,18 @@ Claims are used like this:
 			'format' => 'json',
 			'action' => 'wbsetreference',
 			'statement' => $statement,
+			'baserevid' => $revid,
 			'snaks' => json_encode($snak),
 			'token' => $token,
 			'bot' => 1
 			);
-
-		$res = $this->doApiQuery( $params, $ch );
+		$mode = 'statement';
+		$res = $this->doApiQuery( $params, $ch, $mode );
 		
 		if ( isset ( $_REQUEST['test'] ) ) {
 			print "<pre>" ; print_r ( $claim ) ; print "</pre>" ;
 			print "<pre>" ; print_r ( $res ) ; print "</pre>" ;
 		}
-
 		$this->last_res = $res ;
 		if ( isset ( $res->error ) ) return false ;
 
@@ -758,9 +766,6 @@ Claims are used like this:
 			return false ;
 		}
 		$token = $res->tokens->edittoken;
-	
-	
-	
 
 		$res = $this->doApiQuery( array(
 			'format' => 'json',
