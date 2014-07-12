@@ -628,6 +628,24 @@
 		
 	}
 
+	public function setReference(){
+		if( !$this->ensureAuth() )
+			return;
+		$q = $this->get_request( "ids" );
+		$prop = $this->get_request( "prop" );
+		$refprop = $this->get_request( "refprop" );
+		$value = $this->get_request( "value" );
+		if ( $q == '' or $prop == '' or $refprop == '' or $value == '' ) {
+			$msg = "Parameters incomplete." ;
+			if ( $this->botmode ) $this->out['error'] = $msg ;
+			else print "<pre>$msg</pre>" ;
+			return ;
+		}
+
+
+		$res = $this->mwClient->setReference( $q, $prop, $refprop, $value );
+	}
+
 	/**
 	 * Logout from the OAuth authenticated app
 	 */	
