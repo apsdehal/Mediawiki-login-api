@@ -631,19 +631,34 @@
 	public function setReference(){
 		if( !$this->ensureAuth() )
 			return;
-		$q = $this->get_request( "ids" );
-		$prop = $this->get_request( "prop" );
+		$statement = $this->get_request( "statement" );
 		$refprop = $this->get_request( "refprop" );
 		$value = $this->get_request( "value" );
-		if ( $q == '' or $prop == '' or $refprop == '' or $value == '' ) {
+		$datatype = $this->get_request("datatype");
+
+		if ( $statement == '' or $datatype == '' or $refprop == '' or $value == '' ) {
 			$msg = "Parameters incomplete." ;
 			if ( $this->botmode ) $this->out['error'] = $msg ;
 			else print "<pre>$msg</pre>" ;
 			return ;
 		}
 
+		$data = array(
+			'statement' => $statement,
+			'refprop' => $refprop,
+			'value' => $value,
+			'datatype' => $datatype
+			);
 
-		$res = $this->mwClient->setReference( $q, $prop, $refprop, $value );
+		if( $this->mwClient->setReference( $data ) ){
+				if ( !$this->botmode ) print "done.\n" ;
+				else $this->out['res'] = $this->mwClient->last_res ;
+			} else {
+				$msg = "failed!" ;
+				if ( $this->botmode ) $this->out['error'] = $msg ;
+				else print "$msg\n" ;
+			}
+		}	
 	}
 
 	/**
