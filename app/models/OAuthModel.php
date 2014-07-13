@@ -690,9 +690,9 @@ Claims are used like this:
 		$ch = null;
 
 		$statement = $data['statement'];
-		$refprop = $data['refprop'];
-		$value = $data['value'];
-		$datatype = $data['datatype'];
+		$refprop = explode ( ",", $data['refprop'] );
+		$value = explode( ",", $data['value'] );
+		$datatype = explode( ",", $data['datatype'] );
 		$revid = $data['revid'];
 
 		//Fetch edit token
