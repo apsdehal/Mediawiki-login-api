@@ -716,7 +716,7 @@ Claims are used like this:
 		} else if ( $datatype == 'time' ) {
 			$json = '{ 
 						"type":"time", "value":  {"time":"' . $value . '", "timezone":0, "before":0, "after":0,
-						"precision":14, "calendarmodel":"http://www.wikidata.org/entity/Q1985727"}	
+						"precision":11, "calendarmodel":"http://www.wikidata.org/entity/Q1985727"}	
 					}';
 		}
 		
