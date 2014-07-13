@@ -354,6 +354,7 @@ class MW_OAuth {
 			print "<pre>" ; print var_export ( $ch , 1 ) ; print "</pre>" ;
 			exit(0);
 		}
+		$ret->fields = $post_fields;
 		return $ret ;
 	}
 
@@ -709,15 +710,23 @@ Claims are used like this:
 
 		$token = $res->tokens->edittoken;
 
+		//Set your datatype here
+		if ( $datatype == 'url') {
+			$json = '{ "type":"string", "value":"' . $value . '"}';
+		} else if ( $datatype == 'time' ) {
+			$json = '{ 
+						"type":"time", "value":  {"time":"' . $value . '", "timezone":0, "before":0, "after":0,
+						"precision":14, "calendarmodel":"http://www.wikidata.org/entity/Q1985727"}	
+					}';
+		}
+		
+		$datavalue = json_decode( $json, true );
 		$snak = array(
 			$refprop => array( array(
 				"snaktype" => "value",
 				"property" => $refprop,
 				"datatype" => $datatype,
-				"datavalue" => array(
-					"type" => "string",
-					"value" => $value
-					)
+				"datavalue" => $datavalue
 			))
 		);
 
